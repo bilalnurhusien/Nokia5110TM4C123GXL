@@ -36,133 +36,79 @@
 #include "driverlib/pin_map.h"
 #include <stdio.h>
 #include "Nokia5110.h"
-void initI2C0(void)
+void initI2C2(void)
 {
 	//This function is for eewiki and is to be updated to handle any port
 
 	//enable I2C module
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C3);
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C2);
 
 	//reset I2C module
-	SysCtlPeripheralReset(SYSCTL_PERIPH_I2C3);
+	SysCtlPeripheralReset(SYSCTL_PERIPH_I2C2);
 
 	//enable GPIO peripheral that contains I2C
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
 
 	// Configure the pin muxing for I2C2 functions on port D0 and D1
-	GPIOPinConfigure(GPIO_PD0_I2C3SCL);
-	GPIOPinConfigure(GPIO_PD1_I2C3SDA);
+	GPIOPinConfigure(GPIO_PE4_I2C2SCL);
+	GPIOPinConfigure(GPIO_PE5_I2C2SDA);
 
 	// Select the I2C function for these pins.
-	GPIOPinTypeI2CSCL(GPIO_PORTD_BASE, GPIO_PIN_0);
-	GPIOPinTypeI2C(GPIO_PORTD_BASE, GPIO_PIN_1);
+	GPIOPinTypeI2CSCL(GPIO_PORTE_BASE, GPIO_PIN_4);
+	GPIOPinTypeI2C(GPIO_PORTE_BASE, GPIO_PIN_5);
 
-	// Enable and initialize the I2C0 master module.  Use the system clock for
-	// the I2C0 module.  The last parameter sets the I2C data transfer rate.
+	// Enable and initialize the I2C2 master module.  Use the system clock for
+	// the I2C3 module.  The last parameter sets the I2C data transfer rate.
 	// If false the data rate is set to 100kbps and if true the data rate will
 	// be set to 400kbps.
-	I2CMasterInitExpClk(I2C3_BASE, SysCtlClockGet(), false);
+	I2CMasterInitExpClk(I2C2_BASE, SysCtlClockGet(), false);
 
 	//clear I2C FIFOs
-	HWREG(I2C3_BASE + I2C_O_FIFOCTL) = 80008000;
+	HWREG(I2C2_BASE + I2C_O_FIFOCTL) = 80008000;
 }
 
-uint8_t readI2C0(uint16_t device_address, uint16_t device_register)
+uint8_t readI2C2(uint16_t device_address, uint16_t device_register)
 {
 	//specify that we want to communicate to device address with an intended write to bus
-	I2CMasterSlaveAddrSet(I2C3_BASE, device_address, false);
+        I2CMasterSlaveAddrSet(I2C2_BASE, device_address, false); // Set to write mode
 
-	//the register to be read
-	I2CMasterDataPut(I2C3_BASE, device_register);
+        I2CMasterDataPut(I2C2_BASE, device_register); // Place address into data register
+        I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_SINGLE_SEND); // Send data
+        while (I2CMasterBusy(I2C2_BASE)); // Wait until transfer is done
 
-	//send control byte and register address byte to slave device
-	I2CMasterControl(I2C3_BASE, I2C_MASTER_CMD_SINGLE_SEND);
+        I2CMasterSlaveAddrSet(I2C2_BASE, device_address, true); // Set to read mode
 
-	//wait for MCU to complete send transaction
-	while(I2CMasterBusy(I2C3_BASE));
+        I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_SINGLE_RECEIVE); // Tell master to read data
+        while (I2CMasterBusy(I2C2_BASE)); // Wait until transfer is done
+        uint8_t data = I2CMasterDataGet(I2C2_BASE); // Read data
 
-	//read from the specified slave device
-	I2CMasterSlaveAddrSet(I2C3_BASE, device_address, true);
-
-	//send control byte and read from the register from the MCU
-	I2CMasterControl(I2C3_BASE, I2C_MASTER_CMD_SINGLE_RECEIVE);
-
-	//wait while checking for MCU to complete the transaction
-	while(I2CMasterBusy(I2C3_BASE));
-
-	//Get the data from the MCU register and return to caller
-	return( I2CMasterDataGet(I2C3_BASE));
+        return data;
 }
 
-uint16_t readI2C0TwoBytes(uint16_t device_address, uint16_t device_register)
+void writeI2C2(uint16_t device_address, uint16_t device_register, uint8_t device_data)
 {
 	//specify that we want to communicate to device address with an intended write to bus
-	I2CMasterSlaveAddrSet(I2C3_BASE, device_address, false);
-
-	//the register to be read
-	I2CMasterDataPut(I2C3_BASE, device_register);
-
-	//send control byte and register address byte to slave device
-	I2CMasterControl(I2C3_BASE, I2C_MASTER_CMD_SINGLE_SEND);
-
-	//wait for MCU to complete send transaction
-        while (I2CMasterBusy(I2C3_BASE)); //Wait till end of transaction
-
-	//read from the specified slave device
-	I2CMasterSlaveAddrSet(I2C3_BASE, device_address, true);
-
-	//send control byte and read from the register from the MCU
-	I2CMasterControl(I2C3_BASE, I2C_MASTER_CMD_BURST_RECEIVE_START);
-
-	//wait while checking for MCU to complete the transaction
-        while (!I2CMasterBusy(I2C3_BASE));
-        while (I2CMasterBusy(I2C3_BASE)); //Wait till end of transaction
-        
-     	I2CMasterControl(I2C3_BASE, I2C_MASTER_CMD_BURST_RECEIVE_CONT);
-
-	//wait while checking for MCU to complete the transaction
-        while (!I2CMasterBusy(I2C3_BASE));
-        while (I2CMasterBusy(I2C3_BASE)); //Wait till end of transaction
-
-	//Get the data from the MCU register and return to caller
-	uint8_t data1 = I2CMasterDataGet(I2C3_BASE);
-        
-        //wait while checking for MCU to complete the transaction
-        while (!I2CMasterBusy(I2C3_BASE));
-	while(I2CMasterBusy(I2C3_BASE));
-       
-	//Get the data from the MCU register and return to caller
-	uint8_t data2 = I2CMasterDataGet(I2C3_BASE);
-        
-        uint16_t retVal = (data1 << 8 | data2 << 8);
-        
-        return retVal;
-}
-
-void writeI2C0(uint16_t device_address, uint16_t device_register, uint8_t device_data)
-{
-	//specify that we want to communicate to device address with an intended write to bus
-	I2CMasterSlaveAddrSet(I2C3_BASE, device_address, false);
+	I2CMasterSlaveAddrSet(I2C2_BASE, device_address, false);
 
 	//register to be read
-	I2CMasterDataPut(I2C3_BASE, device_register);
+	I2CMasterDataPut(I2C2_BASE, device_register);
 
 	//send control byte and register address byte to slave device
-	I2CMasterControl(I2C3_BASE, I2C_MASTER_CMD_BURST_SEND_START);
+	I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_BURST_SEND_START);
 
 	//wait for MCU to finish transaction
-	while(I2CMasterBusy(I2C3_BASE));
+	while(I2CMasterBusy(I2C2_BASE));
 
-	I2CMasterSlaveAddrSet(I2C3_BASE, device_address, true);
+	I2CMasterSlaveAddrSet(I2C2_BASE, device_address, false);
 
 	//specify data to be written to the above mentioned device_register
-	I2CMasterDataPut(I2C3_BASE, device_data);
+	I2CMasterDataPut(I2C2_BASE, device_data);
 
-	//wait while checking for MCU to complete the transaction
-	I2CMasterControl(I2C3_BASE, I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
+        //wait while checking for MCU to complete the transaction
+	I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);
 
 	//wait for MCU & device to complete transaction
-	while(I2CMasterBusy(I2C3_BASE));
+	while(I2CMasterBusy(I2C2_BASE));
 }
 
 #define I2C_MPU_6050_ADDR               0x68
@@ -175,15 +121,19 @@ void writeI2C0(uint16_t device_address, uint16_t device_register, uint8_t device
 #define I2C_MPU_6050_ACCEL_Y1           0x3D
 #define I2C_MPU_6050_ACCEL_Y2           0x3E
 #define I2C_MPU_6050_ACCEL_Z1           0x3F
-#define I2C_MPU_6050_ACCEL_Z2           0x3G
+#define I2C_MPU_6050_ACCEL_Z2           0x40
+#define I2C_MPU_6050_TEMP1              0x41
+#define I2C_MPU_6050_TEMP2              0x42
 
 int main(void)
 {
+     SysCtlClockSet(SYSCTL_SYSDIV_1  | SYSCTL_USE_PLL | SYSCTL_OSC_INT | SYSCTL_XTAL_16MHZ);
+
     Output_Init();
-    initI2C0();
-    writeI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_POWER_CONFIG, 0);
-    writeI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_CONFIG, 0x10);
-    writeI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_GYRO_CONFIG, 0x08);
+    initI2C2();
+    writeI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_POWER_CONFIG, 0);
+    writeI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_CONFIG, 0x10);
+    writeI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_GYRO_CONFIG, 0x08);
 
     Nokia5110_Clear();
 
@@ -194,24 +144,31 @@ int main(void)
     Nokia5110_OutString("AccZ:");
     Nokia5110_SetCursor(0,3);
     Nokia5110_OutString("Temp:");
-    
-    uint8_t who = readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_WHO_AM_I);
-    Nokia5110_OutUDec(who);
-    who = readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_X1);
-    Nokia5110_OutUDec(who);
-    int16_t data = (readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_X1) << 8 | readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_X2)) ;
-    Nokia5110_SetCursor(5,0);
-    Nokia5110_OutUDec(data);
-
-    data = (readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Y1) << 8 | readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Y2)) ;
-    Nokia5110_SetCursor(5,1);
-    Nokia5110_OutUDec(data);
-
-   // data = (readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Z1) << 8 | readI2C0(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Z2)) ;
-    Nokia5110_SetCursor(5,2);
-    Nokia5110_OutUDec(data);    
+    Nokia5110_SetCursor(0,4);
+    Nokia5110_OutString("Who:");
 
     while (1)
     {
+        uint16_t data = (readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_X1) << 8 | readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_X2)) ;
+        Nokia5110_SetCursor(5,0);
+        Nokia5110_OutUDec(data);
+
+        data = (readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Y1) << 8 | readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Y2)) ;
+        Nokia5110_SetCursor(5,1);
+        Nokia5110_OutUDec(data);
+
+        data = (readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Z1) << 8 | readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Z2)) ;
+        Nokia5110_SetCursor(5,2);
+        Nokia5110_OutUDec(data);
+        
+        data = readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_TEMP1);
+        Nokia5110_SetCursor(5,3);
+        Nokia5110_OutUDec(data);
+        
+        Nokia5110_SetCursor(5,4);
+        uint8_t who = readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_WHO_AM_I);
+        Nokia5110_OutUDec(who);
+        
+        SysCtlDelay(8000000);
     }
 }
