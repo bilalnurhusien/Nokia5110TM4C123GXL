@@ -120168,7 +120168,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@2543@F@CalibrateGyroData@CalibrationCount",
+    "ID": "c:main.c@2537@F@CalibrateGyroData@CalibrationCount",
     "What": "Variable",
     "defdec": "Def",
     "display": "CalibrationCount",
@@ -120182,7 +120182,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@2588@F@CalibrateGyroData@gyroX",
+    "ID": "c:main.c@2582@F@CalibrateGyroData@gyroX",
     "What": "Variable",
     "defdec": "Def",
     "display": "gyroX",
@@ -120196,7 +120196,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@2588@F@CalibrateGyroData@gyroY",
+    "ID": "c:main.c@2582@F@CalibrateGyroData@gyroY",
     "What": "Variable",
     "defdec": "Dec",
     "display": "gyroY",
@@ -120210,7 +120210,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@2588@F@CalibrateGyroData@gyroZ",
+    "ID": "c:main.c@2582@F@CalibrateGyroData@gyroZ",
     "What": "Variable",
     "defdec": "Dec",
     "display": "gyroZ",
@@ -120224,7 +120224,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@2588@F@CalibrateGyroData@i",
+    "ID": "c:main.c@2582@F@CalibrateGyroData@i",
     "What": "Variable",
     "defdec": "Dec",
     "display": "i",
@@ -120238,7 +120238,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@2673@F@CalibrateGyroData@gpioStatus",
+    "ID": "c:main.c@2667@F@CalibrateGyroData@gpioStatus",
     "What": "Variable",
     "defdec": "Def",
     "display": "gpioStatus",
@@ -120266,7 +120266,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3665@F@main@gyroXCal",
+    "ID": "c:main.c@3659@F@main@gyroXCal",
     "What": "Variable",
     "defdec": "Def",
     "display": "gyroXCal",
@@ -120280,7 +120280,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3665@F@main@gyroYCal",
+    "ID": "c:main.c@3659@F@main@gyroYCal",
     "What": "Variable",
     "defdec": "Dec",
     "display": "gyroYCal",
@@ -120294,7 +120294,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3665@F@main@gyroZCal",
+    "ID": "c:main.c@3659@F@main@gyroZCal",
     "What": "Variable",
     "defdec": "Dec",
     "display": "gyroZCal",
@@ -120308,7 +120308,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3800@F@main@gyroX",
+    "ID": "c:main.c@3794@F@main@gyroX",
     "What": "Variable",
     "defdec": "Def",
     "display": "gyroX",
@@ -120322,7 +120322,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3800@F@main@gyroY",
+    "ID": "c:main.c@3794@F@main@gyroY",
     "What": "Variable",
     "defdec": "Dec",
     "display": "gyroY",
@@ -120336,7 +120336,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3800@F@main@gyroZ",
+    "ID": "c:main.c@3794@F@main@gyroZ",
     "What": "Variable",
     "defdec": "Dec",
     "display": "gyroZ",
@@ -120350,7 +120350,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3800@F@main@accelX",
+    "ID": "c:main.c@3794@F@main@accelX",
     "What": "Variable",
     "defdec": "Dec",
     "display": "accelX",
@@ -120364,7 +120364,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3800@F@main@accelY",
+    "ID": "c:main.c@3794@F@main@accelY",
     "What": "Variable",
     "defdec": "Dec",
     "display": "accelY",
@@ -120378,7 +120378,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3800@F@main@accelZ",
+    "ID": "c:main.c@3794@F@main@accelZ",
     "What": "Variable",
     "defdec": "Dec",
     "display": "accelZ",
@@ -120392,7 +120392,7 @@
     "scope": null
   },
   {
-    "ID": "c:main.c@3859@F@main@gpioB7Status",
+    "ID": "c:main.c@3853@F@main@gpioB7Status",
     "What": "Variable",
     "defdec": "Def",
     "display": "gpioB7Status",

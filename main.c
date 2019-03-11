@@ -79,7 +79,7 @@ bool Initialize()
     }
     
     //
-    // Set pins 0 and 3 as output, SW controlled.
+    // Set pins 7 as output, SW controlled.
     //
     GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
     
