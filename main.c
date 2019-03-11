@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
+
 #include <driverlib/gpio.h>
 #include <driverlib/sysctl.h>
 #include <driverlib/uart.h>
@@ -8,6 +10,7 @@
 #include <driverlib/interrupt.h>
 #include <driverlib/pin_map.h>
 #include <inc/hw_memmap.h>
+
 #include "Nokia5110.h"
 #include "Mpu6050.h"
 #include "Timer0A.h"
@@ -88,7 +91,7 @@ bool Initialize()
     return true;
 }
 
-void CalibrateGyroData(int32_t * gyroXCal, int32_t * gyroYCal, int32_t * gyroZCal)
+void CalibrateGyroData(int64_t * gyroXCal, int64_t * gyroYCal, int64_t * gyroZCal)
 {
     if (NULL == gyroXCal ||
         NULL == gyroYCal ||
@@ -156,7 +159,7 @@ int main(void)
         return false;
     }
 
-    int32_t gyroXCal, gyroYCal, gyroZCal;
+    int64_t gyroXCal, gyroYCal, gyroZCal;
     CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
     
     SetUpLcdScreen();
