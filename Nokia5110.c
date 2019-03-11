@@ -290,6 +290,62 @@ void Nokia5110_OutUDec(unsigned short n){
     Nokia5110_OutChar(n%10+'0'); /* ones digit */
   }
 }
+  
+  
+//********Nokia5110_OutUDec*****************
+// Output a 16-bit number in signed decimal format with a
+// fixed size of five right-justified digits of output.
+// Inputs: n  16-bit signed number
+// Outputs: none
+// assumes: LCD is in default horizontal addressing mode (V = 0)
+void Nokia5110_OutDec(signed short val){
+  signed short n = 0;
+  
+  if (val < 0)
+  {
+    Nokia5110_OutChar('-');
+    n = -val;
+  }
+  else
+  {
+    Nokia5110_OutChar('+');
+    n = val;
+  }
+  
+  if(n < 10){
+    Nokia5110_OutString("    ");
+    Nokia5110_OutChar(n+'0'); /* n is between 0 and 9 */
+  } else if(n<100){
+    Nokia5110_OutString("   ");
+    Nokia5110_OutChar(n/10+'0'); /* tens digit */
+    Nokia5110_OutChar(n%10+'0'); /* ones digit */
+  } else if(n<1000){
+    Nokia5110_OutString("  ");
+    Nokia5110_OutChar(n/100+'0'); /* hundreds digit */
+    n = n%100;
+    Nokia5110_OutChar(n/10+'0'); /* tens digit */
+    Nokia5110_OutChar(n%10+'0'); /* ones digit */
+  }
+  else if(n<10000){
+    Nokia5110_OutChar(' ');
+    Nokia5110_OutChar(n/1000+'0'); /* thousands digit */
+    n = n%1000;
+    Nokia5110_OutChar(n/100+'0'); /* hundreds digit */
+    n = n%100;
+    Nokia5110_OutChar(n/10+'0'); /* tens digit */
+    Nokia5110_OutChar(n%10+'0'); /* ones digit */
+  }
+  else {
+    Nokia5110_OutChar(n/10000+'0'); /* ten-thousands digit */
+    n = n%10000;
+    Nokia5110_OutChar(n/1000+'0'); /* thousands digit */
+    n = n%1000;
+    Nokia5110_OutChar(n/100+'0'); /* hundreds digit */
+    n = n%100;
+    Nokia5110_OutChar(n/10+'0'); /* tens digit */
+    Nokia5110_OutChar(n%10+'0'); /* ones digit */
+  }
+}
 
 //********Nokia5110_SetCursor*****************
 // Move the cursor to the desired X- and Y-position.  The

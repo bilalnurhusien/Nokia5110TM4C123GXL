@@ -1,174 +1,200 @@
-// main.c
-// Runs on LM4F120/TM4C123
-// Nokia5110 LCD 
-// Daniel Valvano
-// May 23, 2014
-
-/* This example accompanies the books
-  "Embedded Systems: Introduction to ARM Cortex M Microcontrollers",
-  ISBN: 978-1469998749, Jonathan Valvano, copyright (c) 2014
-
-"Embedded Systems: Real Time Interfacing to ARM Cortex M Microcontrollers",
-   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2014
- 
- Copyright 2014 by Jonathan W. Valvano, valvano@mail.utexas.edu
-    You may use, edit, run or distribute this file
-    as long as the above copyright notice remains
- THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
- OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
- MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
- VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
- OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
- For more information about my classes, my research, and my books, see
- http://users.ece.utexas.edu/~valvano/
- */
-
+#include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "inc/tm4c123gh6pm.h"
-#include "inc/hw_i2c.h"
-#include "inc/hw_memmap.h"
-#include "inc/hw_types.h"
-#include "inc/hw_gpio.h"
-#include "driverlib/i2c.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/gpio.h"
-#include "driverlib/pin_map.h"
-#include <stdio.h>
+#include <driverlib/gpio.h>
+#include <driverlib/sysctl.h>
+#include <driverlib/uart.h>
+#include <driverlib/timer.h>
+#include <driverlib/interrupt.h>
+#include <driverlib/pin_map.h>
+#include <inc/hw_memmap.h>
 #include "Nokia5110.h"
-void initI2C2(void)
-{
-	//This function is for eewiki and is to be updated to handle any port
+#include "Mpu6050.h"
+#include "Timer0A.h"
 
-	//enable I2C module
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C2);
+volatile int refreshTimeout = 0;
 
-	//reset I2C module
-	SysCtlPeripheralReset(SYSCTL_PERIPH_I2C2);
-
-	//enable GPIO peripheral that contains I2C
-	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-
-	// Configure the pin muxing for I2C2 functions on port D0 and D1
-	GPIOPinConfigure(GPIO_PE4_I2C2SCL);
-	GPIOPinConfigure(GPIO_PE5_I2C2SDA);
-
-	// Select the I2C function for these pins.
-	GPIOPinTypeI2CSCL(GPIO_PORTE_BASE, GPIO_PIN_4);
-	GPIOPinTypeI2C(GPIO_PORTE_BASE, GPIO_PIN_5);
-
-	// Enable and initialize the I2C2 master module.  Use the system clock for
-	// the I2C3 module.  The last parameter sets the I2C data transfer rate.
-	// If false the data rate is set to 100kbps and if true the data rate will
-	// be set to 400kbps.
-	I2CMasterInitExpClk(I2C2_BASE, SysCtlClockGet(), false);
-
-	//clear I2C FIFOs
-	HWREG(I2C2_BASE + I2C_O_FIFOCTL) = 80008000;
+void Timer0A_Handler(void){
+    refreshTimeout = 1;
 }
 
-uint8_t readI2C2(uint16_t device_address, uint16_t device_register)
+//
+// Write static data to LCD
+//
+void SetUpLcdScreen()
 {
-	//specify that we want to communicate to device address with an intended write to bus
-        I2CMasterSlaveAddrSet(I2C2_BASE, device_address, false); // Set to write mode
-
-        I2CMasterDataPut(I2C2_BASE, device_register); // Place address into data register
-        I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_SINGLE_SEND); // Send data
-        while (I2CMasterBusy(I2C2_BASE)); // Wait until transfer is done
-
-        I2CMasterSlaveAddrSet(I2C2_BASE, device_address, true); // Set to read mode
-
-        I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_SINGLE_RECEIVE); // Tell master to read data
-        while (I2CMasterBusy(I2C2_BASE)); // Wait until transfer is done
-        uint8_t data = I2CMasterDataGet(I2C2_BASE); // Read data
-
-        return data;
+    Nokia5110_Clear();
+    Nokia5110_OutString("GyroX:");
+    Nokia5110_SetCursor(0,1);
+    Nokia5110_OutString("GyroY:");
+    Nokia5110_SetCursor(0,2);
+    Nokia5110_OutString("GyroZ:");
+    Nokia5110_SetCursor(0,3);
+    Nokia5110_OutString("AccX :");
+    Nokia5110_SetCursor(0,4);
+    Nokia5110_OutString("AccY :");
+    Nokia5110_SetCursor(0,5);
+    Nokia5110_OutString("AccZ :");
 }
 
-void writeI2C2(uint16_t device_address, uint16_t device_register, uint8_t device_data)
+bool Initialize()
 {
-	//specify that we want to communicate to device address with an intended write to bus
-	I2CMasterSlaveAddrSet(I2C2_BASE, device_address, false);
+    //
+    // Nokia 5110 Initialization
+    //
+    Output_Init();
+    
+    //
+    // MPU-6050 Initialization
+    //
+    MPU_6050_Init(I2C_MPU_6050_GYRO_CONFIG_500_DPS, I2C_MPU_6050_ACCEL_CONFIG_8G);
+    
+    if (!MPU_6050_Probe())
+    {
+        printf("Failed to find MPU-6050 IMU\n");
+        return false;
+    }
+                  
+    //
+    // Timer initialization for 4ms second timeout
+    //
+    uint32_t period = SysCtlClockGet()/250;
+    
+    if (!Timer_0A_Init(&Timer0A_Handler, period))
+    {
+        printf("Failed to initialize Timer0A");
+        return false;     
+    }
+    
+    //
+    // Enable the GPIOA peripheral
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+    
+    //
+    // Wait for the GPIOA module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB))
+    {
+    }
+    
+    //
+    // Set pins 0 and 3 as output, SW controlled.
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
+    
+    GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, 0);
 
-	//register to be read
-	I2CMasterDataPut(I2C2_BASE, device_register);
-
-	//send control byte and register address byte to slave device
-	I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_BURST_SEND_START);
-
-	//wait for MCU to finish transaction
-	while(I2CMasterBusy(I2C2_BASE));
-
-	I2CMasterSlaveAddrSet(I2C2_BASE, device_address, false);
-
-	//specify data to be written to the above mentioned device_register
-	I2CMasterDataPut(I2C2_BASE, device_data);
-
-        //wait while checking for MCU to complete the transaction
-	I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_BURST_SEND_FINISH);
-
-	//wait for MCU & device to complete transaction
-	while(I2CMasterBusy(I2C2_BASE));
+    return true;
 }
 
-#define I2C_MPU_6050_ADDR               0x68
-#define I2C_MPU_6050_ACCEL_CONFIG       0x1C
-#define I2C_MPU_6050_POWER_CONFIG       0x6B
-#define I2C_MPU_6050_GYRO_CONFIG        0x1B
-#define I2C_MPU_6050_WHO_AM_I           0x75
-#define I2C_MPU_6050_ACCEL_X1           0x3B
-#define I2C_MPU_6050_ACCEL_X2           0x3C
-#define I2C_MPU_6050_ACCEL_Y1           0x3D
-#define I2C_MPU_6050_ACCEL_Y2           0x3E
-#define I2C_MPU_6050_ACCEL_Z1           0x3F
-#define I2C_MPU_6050_ACCEL_Z2           0x40
-#define I2C_MPU_6050_TEMP1              0x41
-#define I2C_MPU_6050_TEMP2              0x42
+void CalibrateGyroData(int32_t * gyroXCal, int32_t * gyroYCal, int32_t * gyroZCal)
+{
+    if (NULL == gyroXCal ||
+        NULL == gyroYCal ||
+        NULL == gyroZCal)
+    {
+        printf("Invalid argument\n");
+        return;
+    }
+    
+    *gyroXCal = *gyroYCal = *gyroZCal = 0;
+
+    Nokia5110_Clear();
+    Nokia5110_SetCursor(0,0);
+    
+    Nokia5110_OutString("MPU-6050 IMU");
+
+    Nokia5110_SetCursor(0,1);
+    
+    Nokia5110_OutString("Calibrating");
+    
+    //
+    // Take 2000 samples on refresh timeout
+    //
+    const uint32_t CalibrationCount = 2000;
+    int16_t gyroX, gyroY, gyroZ, i;
+    
+    gyroX = gyroY = gyroZ = i = 0;
+    
+    uint8_t gpioStatus =  (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_7) & 0xFF);
+    
+    while (i < CalibrationCount)
+    {     
+        if (refreshTimeout)
+        {
+            refreshTimeout = 0;
+            gpioStatus ^= GPIO_PIN_7;
+            GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, gpioStatus);
+            MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
+            *gyroXCal += gyroX;
+            *gyroYCal += gyroY;
+            *gyroZCal += gyroZ;
+            ++i;
+            
+            if ((i % 250) == 0)
+            {
+                Nokia5110_OutChar('.');
+            }
+        }
+    }
+    
+    *gyroXCal /= CalibrationCount;
+    *gyroYCal /= CalibrationCount;
+    *gyroZCal /= CalibrationCount;
+}
 
 int main(void)
 {
-     SysCtlClockSet(SYSCTL_SYSDIV_1  | SYSCTL_USE_PLL | SYSCTL_OSC_INT | SYSCTL_XTAL_16MHZ);
+    SysCtlClockSet(SYSCTL_SYSDIV_1  | SYSCTL_USE_PLL | SYSCTL_OSC_INT | SYSCTL_XTAL_16MHZ);
 
-    Output_Init();
-    initI2C2();
-    writeI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_POWER_CONFIG, 0);
-    writeI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_CONFIG, 0x10);
-    writeI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_GYRO_CONFIG, 0x08);
+    SysCtlDelay(3);    
+    
+    if (!Initialize())
+    {
+        printf("Failed to initialize\n");
+        return false;
+    }
 
-    Nokia5110_Clear();
-
-    Nokia5110_OutString("AccX:");
-    Nokia5110_SetCursor(0,1);
-    Nokia5110_OutString("AccY:");
-    Nokia5110_SetCursor(0,2);
-    Nokia5110_OutString("AccZ:");
-    Nokia5110_SetCursor(0,3);
-    Nokia5110_OutString("Temp:");
-    Nokia5110_SetCursor(0,4);
-    Nokia5110_OutString("Who:");
-
+    int32_t gyroXCal, gyroYCal, gyroZCal;
+    CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
+    
+    SetUpLcdScreen();
+    
+    int16_t gyroX, gyroY, gyroZ, accelX, accelY, accelZ; 
+    uint8_t gpioB7Status =  (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_7) & 0xFF);
     while (1)
     {
-        uint16_t data = (readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_X1) << 8 | readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_X2)) ;
-        Nokia5110_SetCursor(5,0);
-        Nokia5110_OutUDec(data);
+      if (refreshTimeout)
+      {
+        refreshTimeout = 0;
+        gpioB7Status ^= GPIO_PIN_7;
+        GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, gpioB7Status);
+        
+        MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
+        MPU_6050_GetAccelData(&accelX, &accelY, &accelZ);
+ 
+        gyroX -= gyroXCal;
+        gyroY -= gyroYCal;
+        gyroZ -= gyroZCal;
+        
+        Nokia5110_SetCursor(6,0);
+        Nokia5110_OutDec(gyroX);
 
-        data = (readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Y1) << 8 | readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Y2)) ;
-        Nokia5110_SetCursor(5,1);
-        Nokia5110_OutUDec(data);
+        Nokia5110_SetCursor(6,1);
+        Nokia5110_OutDec(gyroY);
 
-        data = (readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Z1) << 8 | readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_ACCEL_Z2)) ;
-        Nokia5110_SetCursor(5,2);
-        Nokia5110_OutUDec(data);
+        Nokia5110_SetCursor(6,2);
+        Nokia5110_OutDec(gyroZ);
+
+        Nokia5110_SetCursor(6,3);
+        Nokia5110_OutDec(accelX);
+                
+        Nokia5110_SetCursor(6,4);
+        Nokia5110_OutDec(accelY);
         
-        data = readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_TEMP1);
-        Nokia5110_SetCursor(5,3);
-        Nokia5110_OutUDec(data);
-        
-        Nokia5110_SetCursor(5,4);
-        uint8_t who = readI2C2(I2C_MPU_6050_ADDR, I2C_MPU_6050_WHO_AM_I);
-        Nokia5110_OutUDec(who);
-        
-        SysCtlDelay(8000000);
+        Nokia5110_SetCursor(6,5);
+        Nokia5110_OutDec(accelZ);;      
+      }
     }
 }
