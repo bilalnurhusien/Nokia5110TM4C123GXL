@@ -166,10 +166,12 @@ int main(void)
     
     int16_t gyroX, gyroY, gyroZ, accelX, accelY, accelZ; 
     uint8_t gpioB7Status =  (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_7) & 0xFF);
+    int32_t count = 0;
     while (1)
     {
       if (refreshTimeout)
       {
+        ++count;
         refreshTimeout = 0;
         gpioB7Status ^= GPIO_PIN_7;
         GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, gpioB7Status);
@@ -181,23 +183,27 @@ int main(void)
         gyroY -= gyroYCal;
         gyroZ -= gyroZCal;
         
-        Nokia5110_SetCursor(6,0);
-        Nokia5110_OutDec(gyroX);
+        if (count == 200)
+        {
+            Nokia5110_SetCursor(6,0);
+            Nokia5110_OutDec(gyroX);
 
-        Nokia5110_SetCursor(6,1);
-        Nokia5110_OutDec(gyroY);
+            Nokia5110_SetCursor(6,1);
+            Nokia5110_OutDec(gyroY);
 
-        Nokia5110_SetCursor(6,2);
-        Nokia5110_OutDec(gyroZ);
+            Nokia5110_SetCursor(6,2);
+            Nokia5110_OutDec(gyroZ);
 
-        Nokia5110_SetCursor(6,3);
-        Nokia5110_OutDec(accelX);
-                
-        Nokia5110_SetCursor(6,4);
-        Nokia5110_OutDec(accelY);
-        
-        Nokia5110_SetCursor(6,5);
-        Nokia5110_OutDec(accelZ);;      
+            Nokia5110_SetCursor(6,3);
+            Nokia5110_OutDec(accelX);
+                    
+            Nokia5110_SetCursor(6,4);
+            Nokia5110_OutDec(accelY);
+
+            Nokia5110_SetCursor(6,5);
+            Nokia5110_OutDec(accelZ);;      
+            count = 0;
+        }
       }
     }
 }

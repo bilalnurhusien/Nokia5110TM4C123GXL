@@ -50,7 +50,6 @@
             <file>$TOOLKIT_DIR$\lib\dl7M_tln.a</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gpio.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\timer.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\utils\isqrt.c</file>
             <file>$PROJ_DIR$\Timer0A.c</file>
             <file>$PROJ_DIR$\Timer0A.h</file>
             <file>$TOOLKIT_DIR$\inc\c\limits.h</file>
@@ -83,11 +82,11 @@
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 19 38 18 7 31 33 6 10 39 43 13 52 44 51 27 9 15 11 14 2 47</file>
+                    <file> 19 38 18 7 31 33 6 10 39 47 43 13 51 44 50 27 9 15 11 14 2 46</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 51 43 11 18 10 39 52 9 7 48 13 44 27 15 47 38 6 31 33 14 2 19</file>
+                    <file> 50 43 11 18 10 39 51 9 7 47 13 44 27 15 46 38 6 31 33 14 2 19</file>
                 </tool>
             </inputs>
         </file>
@@ -171,7 +170,7 @@
             <inputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 32 30 26 36 3 49 20 37 21 8 42</file>
+                    <file> 32 30 26 36 3 48 20 37 21 8 42</file>
                 </tool>
             </inputs>
         </file>
@@ -180,21 +179,21 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 49</file>
+                    <file> 48</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 50</file>
+                    <file> 49</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 19 38 18 7 31 33 6 10 39 43 13 52 44 51 27 9 47</file>
+                    <file> 19 38 18 7 31 33 6 10 39 43 13 51 44 50 27 9 46</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 27 38 13 6 33 39 44 47 31 10 43 52 51 9 18 7 19</file>
+                    <file> 27 38 13 6 33 39 44 46 31 10 43 51 50 9 18 7 19</file>
                 </tool>
             </inputs>
         </file>
