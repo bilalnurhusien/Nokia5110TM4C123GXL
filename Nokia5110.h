@@ -217,6 +217,13 @@ void Nokia5110_OutUDec(unsigned short n);
 // assumes: LCD is in default horizontal addressing mode (V = 0)
 void Nokia5110_OutDec(signed short n);
 
+//********Nokia5110_OutFloat*****************
+// Output a 32-bit number single precision float number with a
+// fixed size of 7 right-justified digits of output.
+// Inputs: n  32-bit floating point number
+// Outputs: none
+// assumes: LCD is in default horizontal addressing mode (V = 0)
+void Nokia5110_OutFloat(volatile float * n);
 //********Nokia5110_SetCursor*****************
 // Move the cursor to the desired X- and Y-position.  The
 // next character will be printed here.  X=0 is the leftmost

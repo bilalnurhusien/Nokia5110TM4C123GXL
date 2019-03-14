@@ -305,7 +305,7 @@
                 </option>
                 <option>
                     <name>IExtraOptions</name>
-                    <state>--dlib full</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>CCLangConformance</name>
@@ -368,7 +368,7 @@
                 </option>
                 <option>
                     <name>CCOptLevel</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CCOptStrategy</name>
@@ -377,7 +377,7 @@
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CompilerMisraRules98</name>
@@ -602,7 +602,7 @@
                 </option>
                 <option>
                     <name>AOutputFile</name>
-                    <state></state>
+                    <state>$FILE_BNAME$.o</state>
                 </option>
                 <option>
                     <name>ALimitErrorsCheck</name>
@@ -652,7 +652,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state></state>
+                    <state>nokia.srec</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
