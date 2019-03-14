@@ -15,7 +15,7 @@ void I2C_Init();
 //      device_address  - I2C slave address
 //      device_register - Register in which to read from
 // outputs: one byte of data
-uint8_t I2C_Read(uint16_t device_address, uint16_t device_register);
+uint8_t I2C_Read(uint8_t device_address, uint8_t device_register);
 
 //********I2C_Read2Bytes*****************
 // Read two bytes from a register on an I2C slave address
@@ -23,7 +23,7 @@ uint8_t I2C_Read(uint16_t device_address, uint16_t device_register);
 //      device_address  - I2C slave address
 //      device_register - Register in which to read from
 // outputs: one word of data
-int16_t I2C_Read2Bytes(uint16_t device_address, uint16_t device_register);
+int16_t I2C_Read2Bytes(uint8_t device_address, uint8_t device_register);
 
 //********I2C_Write*****************
 // Write one byte from a register on an I2C slave address
@@ -32,4 +32,4 @@ int16_t I2C_Read2Bytes(uint16_t device_address, uint16_t device_register);
 //      device_register - Register in which to read from
 //      device_data     - Data to write to slave
 // outputs: one word of data
-void I2C_Write(uint16_t device_address, uint16_t device_register, uint8_t device_data);
+void I2C_Write(uint8_t device_address, uint8_t device_register, uint8_t device_data);

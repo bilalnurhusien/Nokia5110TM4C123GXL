@@ -51,7 +51,7 @@ void I2C_Init(void){
 }
 
 
-uint8_t I2C_Read(uint16_t device_address, uint16_t device_register)
+uint8_t I2C_Read(uint8_t device_address, uint8_t device_register)
 {
     //
     // Specify that we want to communicate to device address with an intended write to bus 
@@ -94,7 +94,7 @@ uint8_t I2C_Read(uint16_t device_address, uint16_t device_register)
     return data;
 }
 
-int16_t I2C_Read2Bytes(uint16_t device_address, uint16_t device_register)
+int16_t I2C_Read2Bytes(uint8_t device_address, uint8_t device_register)
 {
     //
     // Specify that we want to communicate to device address with an intended write to bus 
@@ -157,7 +157,7 @@ int16_t I2C_Read2Bytes(uint16_t device_address, uint16_t device_register)
     return (int16_t)(data1 << 8 | data2);
 }
 
-void I2C_Write(uint16_t device_address, uint16_t device_register, uint8_t device_data)
+void I2C_Write(uint8_t device_address, uint8_t device_register, uint8_t device_data)
 {
     //
     // Specify that we want to communicate to device address with an intended write to bus
