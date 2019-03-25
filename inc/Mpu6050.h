@@ -9,6 +9,7 @@
 #define I2C_MPU_6050_REG_GYRO_CONFIG           0x1B
 #define I2C_MPU_6050_REG_ACCEL_CONFIG          0x1C
 #define I2C_MPU_6050_REG_POWER_CONFIG          0x6B
+#define I2C_MPU_6050_REG_FILTER_CONFIG         0x1A
 #define I2C_MPU_6050_REG_WHO_AM_I              0x75
 
 // Accelerometer registers
@@ -43,6 +44,8 @@
 #define I2C_MPU_6050_ACCEL_CONFIG_8G           0x10 // +/- 8G
 #define I2C_MPU_6050_ACCEL_CONFIG_16G          0x18 // +/- 16G
 
+// Low Pass Filter
+#define I2C_MPU_6050_CONFIG_LOW_PASS_FILTER_43_HZ        0x03 // 43 Hz
 
 //********MPU_6050_Init*****************
 // Initialize the MPU-6050 IMU by configuring the power mode,

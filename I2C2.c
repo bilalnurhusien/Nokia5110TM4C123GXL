@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "I2C2.h"
+#include "inc/I2C2.h"
 #include "inc/hw_i2c.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"

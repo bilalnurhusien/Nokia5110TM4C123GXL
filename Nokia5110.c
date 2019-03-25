@@ -57,7 +57,7 @@
 #include <stdlib.h>
 
 #include "inc/tm4c123gh6pm.h"
-#include "Nokia5110.h"
+#include "inc/Nokia5110.h"
 #define DC                      (*((volatile uint32_t *)0x40004100))
 #define DC_COMMAND              0
 #define DC_DATA                 0x40
@@ -365,33 +365,29 @@ void Nokia5110_OutFloat(volatile float * n){
   }
   
   if((*n) < 10.0f){
+    Nokia5110_OutChar('0'); 
+    Nokia5110_OutChar('0'); 
     Nokia5110_OutChar((int)(*n)+'0'); 
     Nokia5110_OutChar('.'); /* decimal point */
     Nokia5110_OutChar(((int)((*n)*10.0f))%10+'0'); /* first place after decimal point */
-    Nokia5110_OutChar(((int)((*n)*100.0f))%10+'0'); /* second place after decimal point */  
   } else if(*n<100.0f){
+    Nokia5110_OutChar('0'); 
     Nokia5110_OutChar((int)(*n)/10+'0');
     Nokia5110_OutChar((int)(*n)%10+'0'); 
     Nokia5110_OutChar('.'); /* decimal point */
     Nokia5110_OutChar(((int)((*n)*10.0f))%10+'0'); /* first place after decimal point */
-    Nokia5110_OutChar(((int)((*n)*100.0f))%10+'0'); /* second place after decimal point */  
   } else if(*n<1000.0f){
-    Nokia5110_OutString(" ");
     Nokia5110_OutChar(((int)(*n))/100+'0');
     Nokia5110_OutChar((((int)(*n))%100)/10+'0');
     Nokia5110_OutChar(((int)(*n))%10+'0'); 
     Nokia5110_OutChar('.'); /* decimal point */
     Nokia5110_OutChar(((int)((*n)*10.0f))%10+'0'); /* first place after decimal point */
-    Nokia5110_OutChar(((int)((*n)*100.0f))%10+'0'); /* second place after decimal point */    
   }
   else if(*n<10000.0f){
     Nokia5110_OutChar(((int)(*n))/1000+'0'); 
     Nokia5110_OutChar((((int)(*n))%1000)/100+'0');
     Nokia5110_OutChar((((int)(*n))%100)/10+'0'); 
     Nokia5110_OutChar(((int)(*n))%10+'0'); 
-    Nokia5110_OutChar('.'); /* decimal point */
-    Nokia5110_OutChar(((int)((*n)*10.0f))%10+'0'); /* first place after decimal point */
-    Nokia5110_OutChar(((int)((*n)*100.0f))%10+'0'); /* second place after decimal point */   
   }
 }
 

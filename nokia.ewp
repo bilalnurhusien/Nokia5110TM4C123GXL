@@ -2078,7 +2078,7 @@
         <name>$PROJ_DIR$\I2C2.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\I2C2.h</name>
+        <name>$PROJ_DIR$\inc\I2C2.h</name>
     </file>
     <file>
         <name>$PROJ_DIR$\main.c</name>
@@ -2087,19 +2087,19 @@
         <name>$PROJ_DIR$\Mpu6050.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\Mpu6050.h</name>
+        <name>$PROJ_DIR$\inc\Mpu6050.h</name>
     </file>
     <file>
         <name>$PROJ_DIR$\Nokia5110.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\Nokia5110.h</name>
+        <name>$PROJ_DIR$\inc\Nokia5110.h</name>
     </file>
     <file>
         <name>$PROJ_DIR$\Timer0A.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\Timer0A.h</name>
+        <name>$PROJ_DIR$\inc\Timer0A.h</name>
     </file>
     <file>
         <name>$PROJ_DIR$\inc\tm4c123gh6pm.h</name>

@@ -9,10 +9,10 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
-#include "Mpu6050.h"
+#include "inc/Mpu6050.h"
 
 
-void MPU_6050_Init(uint8_t gyroCfg, uint8_t accelCfg)
+void MPU_6050_Init(uint8_t gyroCfg, uint8_t accelCfg, uint8_t digitalFilter)
 {
     //
     // I2C Initialization
@@ -27,6 +27,8 @@ void MPU_6050_Init(uint8_t gyroCfg, uint8_t accelCfg)
     I2C_Write(I2C_MPU_6050_I2C_ADDR, I2C_MPU_6050_REG_ACCEL_CONFIG, accelCfg);
     
     I2C_Write(I2C_MPU_6050_I2C_ADDR, I2C_MPU_6050_REG_GYRO_CONFIG, gyroCfg);
+    
+    I2C_Write(I2C_MPU_6050_I2C_ADDR, I2C_MPU_6050_REG_FILTER_CONFIG, digitalFilter);
 }
 
 bool MPU_6050_Probe()

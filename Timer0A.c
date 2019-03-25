@@ -7,7 +7,7 @@
 #include <driverlib/interrupt.h>
 #include <inc/hw_memmap.h>
 
-#include "Timer0A.h"
+#include "inc/Timer0A.h"
 
 static void (*pTimer0AUserIntHandler)(void);
 
