@@ -20,12 +20,13 @@
 
 //
 // Notes:
-//  Pitch (inclination)- angle from the x-axis
-//  Roll (tilt)- angle from the y-axis
-//  Yaw  angle from the z-axis
+//  Pitch (inclination)- angle wrt the x-axis
+//  Roll (tilt)- angle wrt the y-axis
+//  Yaw  angle wrt the z-axis
 //
 
 volatile int imuDataRefreshTimeout = 0;
+volatile int recordReferencePitchAngle = 0;
 
 //
 // Toggle GPIO B7 which is used for debugging purposes
@@ -55,7 +56,15 @@ void SetUpLcdScreen()
     Nokia5110_Clear();
     Nokia5110_OutString("Pitch:");
     Nokia5110_SetCursor(0,1);
-    Nokia5110_OutString("Roll :");
+    Nokia5110_OutString("Ref  :");
+    Nokia5110_SetCursor(0,2);
+    Nokia5110_OutString("Volts:");
+    Nokia5110_SetCursor(0,3);
+    Nokia5110_OutString("Prop :");
+    Nokia5110_SetCursor(0,4);
+    Nokia5110_OutString("Integ:");
+    Nokia5110_SetCursor(0,5);
+    Nokia5110_OutString("Deriv:");
 }
 
 //
@@ -207,7 +216,8 @@ int main(void)
     volatile float accelAnglePitch  = 0;
     volatile float accelAngleRoll = 0;
     volatile float angleIntermCalc = 0;
-    
+    volatile float pitchReferenceDeg = 90.0f;
+
     CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
     
     SetUpLcdScreen();
@@ -251,15 +261,26 @@ int main(void)
         //
         // Gyro angle calculation: Integrate the gyro values every 10 ms
         // and divide by the sensitivity scale factor (65.5 LSB/g). This will
-        // give us the current angular position
+        // give us the current angular position. Note: gyro values will drift 
+        // over time, so we'll need to combine this value with acceleromter data
         // 0.0001527 = 1 / 100Hz / 65.5
         //
         anglePitch += gyroX * 0.0001527f;                                        // Calculate the traveled pitch angle and add this to the angle_pitch variable
   
         //
-        // Accelerometer calculations
-        //
+        // Accelerometer calculations:
+        // (make Z accelerometer component always positive)
         if (accelZ < 0)
+        {
+           accelZ = -accelZ;
+        }
+        
+        // Note - the accelerometer data is sensitive to vibration from the motor
+        // so we'll need to combine the accelerometer data with the gyroscope using
+        // a complemetary filter later on in the code. We'll also limit the angle 
+        // to +/- 90 deg.
+        //
+        if (accelZ < 0.5)
         {
             accelAnglePitch = (accelY < 0 ? -90.0f : 90.0f);
         }
@@ -273,7 +294,7 @@ int main(void)
         //
         // Complementary filter
         //
-        anglePitch = anglePitch * 0.9995f + accelAnglePitch * 0.0005f;              // Correct the drift of the gyro pitch angle with the accelerometer pitch angle
+        anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;              // Correct the drift of the gyro pitch angle with the accelerometer pitch angle
         
         //
         // Send pitch and roll data to LCD
@@ -282,7 +303,9 @@ int main(void)
         {
             count = 0;
             Nokia5110_SetCursor(6,0);
-            Nokia5110_OutFloat(&anglePitch);
+            Nokia5110_OutFloat(anglePitch);
+            Nokia5110_SetCursor(6,1);
+            Nokia5110_OutFloat(pitchReferenceDeg);
         }
       }
     }

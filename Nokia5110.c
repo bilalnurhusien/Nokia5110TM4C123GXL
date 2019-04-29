@@ -353,41 +353,41 @@ void Nokia5110_OutDec(signed short val){
 // Inputs: n  32-bit floating point number
 // Outputs: none
 // assumes: LCD is in default horizontal addressing mode (V = 0)
-void Nokia5110_OutFloat(volatile float * n){
-  if (*n < 0.0f)
+void Nokia5110_OutFloat(volatile float  n){
+  if (n < 0.0f)
   {
     Nokia5110_OutChar('-');
-    *n = -(*n);
+    n = -(n);
   }
   else
   {
     Nokia5110_OutChar('+');
   }
   
-  if((*n) < 10.0f){
+  if(n < 10.0f){
     Nokia5110_OutChar('0'); 
     Nokia5110_OutChar('0'); 
-    Nokia5110_OutChar((int)(*n)+'0'); 
+    Nokia5110_OutChar((int)(n)+'0'); 
     Nokia5110_OutChar('.'); /* decimal point */
-    Nokia5110_OutChar(((int)((*n)*10.0f))%10+'0'); /* first place after decimal point */
-  } else if(*n<100.0f){
+    Nokia5110_OutChar(((int)(n*10.0f))%10+'0'); /* first place after decimal point */
+  } else if(n<100.0f){
     Nokia5110_OutChar('0'); 
-    Nokia5110_OutChar((int)(*n)/10+'0');
-    Nokia5110_OutChar((int)(*n)%10+'0'); 
+    Nokia5110_OutChar((int)n/10+'0');
+    Nokia5110_OutChar((int)n%10+'0'); 
     Nokia5110_OutChar('.'); /* decimal point */
-    Nokia5110_OutChar(((int)((*n)*10.0f))%10+'0'); /* first place after decimal point */
-  } else if(*n<1000.0f){
-    Nokia5110_OutChar(((int)(*n))/100+'0');
-    Nokia5110_OutChar((((int)(*n))%100)/10+'0');
-    Nokia5110_OutChar(((int)(*n))%10+'0'); 
+    Nokia5110_OutChar(((int)(n*10.0f))%10+'0'); /* first place after decimal point */
+  } else if(n<1000.0f){
+    Nokia5110_OutChar(((int)n)/100+'0');
+    Nokia5110_OutChar((((int)n)%100)/10+'0');
+    Nokia5110_OutChar(((int)n)%10+'0'); 
     Nokia5110_OutChar('.'); /* decimal point */
-    Nokia5110_OutChar(((int)((*n)*10.0f))%10+'0'); /* first place after decimal point */
+    Nokia5110_OutChar(((int)(n*10.0f))%10+'0'); /* first place after decimal point */
   }
-  else if(*n<10000.0f){
-    Nokia5110_OutChar(((int)(*n))/1000+'0'); 
-    Nokia5110_OutChar((((int)(*n))%1000)/100+'0');
-    Nokia5110_OutChar((((int)(*n))%100)/10+'0'); 
-    Nokia5110_OutChar(((int)(*n))%10+'0'); 
+  else if(n<10000.0f){
+    Nokia5110_OutChar(((int)n)/1000+'0'); 
+    Nokia5110_OutChar((((int)n)%1000)/100+'0');
+    Nokia5110_OutChar((((int)n)%100)/10+'0'); 
+    Nokia5110_OutChar(((int)n)%10+'0'); 
   }
 }
 

@@ -80,10 +80,6 @@
             <name>$PROJ_DIR$\main.c</name>
             <outputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 24</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
                     <file> 2</file>
                 </tool>
