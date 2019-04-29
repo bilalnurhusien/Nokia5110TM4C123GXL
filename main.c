@@ -18,6 +18,13 @@
 #include "inc/Mpu6050.h"
 #include "inc/Timer0A.h"
 
+//
+// Notes:
+//  Pitch (inclination)- angle from the x-axis
+//  Roll (tilt)- angle from the y-axis
+//  Yaw  angle from the z-axis
+//
+
 volatile int imuDataRefreshTimeout = 0;
 
 //
@@ -64,7 +71,7 @@ bool Initialize()
     //
     // MPU-6050 Initialization
     //
-    MPU_6050_Init(I2C_MPU_6050_GYRO_CONFIG_500_DPS, I2C_MPU_6050_ACCEL_CONFIG_8G, I2C_MPU_6050_CONFIG_LOW_PASS_FILTER_43_HZ);
+    MPU_6050_Init(I2C_MPU_6050_GYRO_CONFIG_500_DPS, I2C_MPU_6050_ACCEL_CONFIG_8G);
     
     int success = 0;
     for (int i = 0; i < 3; ++i)
@@ -85,7 +92,7 @@ bool Initialize()
     }
                   
     //
-    // Timer initialization for 10ms second timeout
+    // Initialize timer to 10ms second timeout
     //
     uint32_t period = SysCtlClockGet()/100;
     
@@ -117,7 +124,10 @@ bool Initialize()
     return true;
 }
 
-void CalibrateGyroData(int64_t * gyroXCal, int64_t * gyroYCal, int64_t * gyroZCal)
+//
+// Calibrate the IMU by taking several samples and using that value for future use
+//
+void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCal)
 {
     if (NULL == gyroXCal ||
         NULL == gyroYCal ||
@@ -127,7 +137,14 @@ void CalibrateGyroData(int64_t * gyroXCal, int64_t * gyroYCal, int64_t * gyroZCa
         return;
     }
     
+    const uint32_t CalibrationCount = 500;
+   
+    int16_t gyroX, gyroY, gyroZ, i;
+    int64_t gyroXCalSum,  gyroYCalSum, gyroZCalSum;
+
+    gyroXCalSum = gyroYCalSum = gyroZCalSum = 0;
     *gyroXCal = *gyroYCal = *gyroZCal = 0;
+    gyroX = gyroY = gyroZ = i = 0;
 
     Nokia5110_Clear();
     Nokia5110_SetCursor(0,0);
@@ -135,27 +152,19 @@ void CalibrateGyroData(int64_t * gyroXCal, int64_t * gyroYCal, int64_t * gyroZCa
     Nokia5110_SetCursor(0,1);
     Nokia5110_OutString("Calibrating");
     
-    //
-    // Take samples every 10 ms
-    //
-    const uint32_t CalibrationCount = 1000;
-    int16_t gyroX, gyroY, gyroZ, i;
-    gyroX = gyroY = gyroZ = i = 0;
-    
-    
     while (i < CalibrationCount)
     {     
         if (imuDataRefreshTimeout)
         {
             //
-            // Toggle GPIO B7 every 10 ms for debugging purposes
+            // Toggle GPIO B7 for debugging purposes
             //
             ToggleGpioB7();
             imuDataRefreshTimeout = 0;
             MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
-            *gyroXCal += gyroX;
-            *gyroYCal += gyroY;
-            *gyroZCal += gyroZ;
+            gyroXCalSum += gyroX;
+            gyroYCalSum += gyroY;
+            gyroZCalSum += gyroZ;
             ++i;
             if ((i % 100) == 0)
             {
@@ -164,9 +173,9 @@ void CalibrateGyroData(int64_t * gyroXCal, int64_t * gyroYCal, int64_t * gyroZCa
         }
     }
     
-    *gyroXCal /= CalibrationCount;
-    *gyroYCal /= CalibrationCount;
-    *gyroZCal /= CalibrationCount;
+    *gyroXCal = (gyroXCalSum / CalibrationCount);
+    *gyroYCal = (gyroYCalSum / CalibrationCount);
+    *gyroZCal = (gyroZCalSum / CalibrationCount);
 }
 
 int main(void)
@@ -191,15 +200,14 @@ int main(void)
         return false;
     }
 
-    int64_t gyroXCal, gyroYCal, gyroZCal;
+    int16_t gyroXCal, gyroYCal, gyroZCal;
     int16_t gyroX, gyroY, gyroZ;
     int16_t accelX, accelY, accelZ;
     volatile float anglePitch = 0;
-    volatile float angleRoll = 0;
     volatile float accelAnglePitch  = 0;
     volatile float accelAngleRoll = 0;
-    volatile float angleTotalVector = 0;
-
+    volatile float angleIntermCalc = 0;
+    
     CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
     
     SetUpLcdScreen();
@@ -213,18 +221,14 @@ int main(void)
     gyroX -= gyroXCal;
     gyroY -= gyroYCal;
     gyroZ -= gyroZCal;
-
-    angleTotalVector = sqrtf(accelX * accelX + accelY * accelY + accelZ * accelZ);
     
     //
-    // 57.296 = 1 / (3.142 / 180) The asin function is in radian
+    // 57.296 = 1 / (3.142 / 180) - the asin function returns radians
     //
-    accelAnglePitch = asinf(accelY / angleTotalVector)* 57.296f;                // Calculate the pitch angle
-
-    accelAngleRoll = asinf(accelX/angleTotalVector)* -57.296f;                  // Calculate the roll angle
+    angleIntermCalc = accelY / ((float)accelZ);
+    accelAnglePitch = atanf(angleIntermCalc)* 57.296f;                // Calculate the pitch angle
      
-    anglePitch = accelAnglePitch;                                               // Set the gyro pitch angle equal to the accelerometer pitch angle 
-    angleRoll = accelAngleRoll;                                                 // Set the gyro roll angle equal to the accelerometer roll angle 
+    anglePitch = accelAnglePitch;                                               // Set the initial gyro pitch angle equal to the accelerometer pitch angle 
     
     int count = 0;
     while (1)
@@ -243,34 +247,33 @@ int main(void)
         MPU_6050_GetAccelData(&accelX, &accelY, &accelZ);
         
         gyroX -= gyroXCal;
-        gyroY -= gyroYCal;
-        gyroZ -= gyroZCal;
 
         //
-        // Gyro angle calculations
+        // Gyro angle calculation: Integrate the gyro values every 10 ms
+        // and divide by the sensitivity scale factor (65.5 LSB/g). This will
+        // give us the current angular position
         // 0.0001527 = 1 / 100Hz / 65.5
         //
-        anglePitch += gyroX * 0.0001527f;                                      // Calculate the traveled pitch angle and add this to the angle_pitch variable
-        angleRoll += gyroY * 0.0001527f;                                       // Calculate the traveled roll angle and add this to the angle_roll variable
+        anglePitch += gyroX * 0.0001527f;                                        // Calculate the traveled pitch angle and add this to the angle_pitch variable
   
-        //
-        // 0.000002665 = 0.0001527 * (3.142(PI) / 180degr) The sin function is in radians
-        //
-        volatile float angle = gyroZ * 0.000002665f;
-        anglePitch += angleRoll * sinf(angle);                  // If the IMU has yawed transfer the roll angle to the pitch angel
-        angleRoll -= anglePitch * sinf(gyroZ * 0.000002665f);                  // If the IMU has yawed transfer the pitch angle to the roll angel
- 
         //
         // Accelerometer calculations
         //
-        angleTotalVector = sqrtf(accelX * accelX + accelY * accelY + accelZ * accelZ); 
+        if (accelZ < 0)
+        {
+            accelAnglePitch = (accelY < 0 ? -90.0f : 90.0f);
+        }
+        else
+        {
+            angleIntermCalc = accelY / ((float)accelZ);
+            // 57.296 = 1 / (3.142 / 180) The asin function is in radians
+            accelAnglePitch = atanf(angleIntermCalc)* 57.296f;              // Calculate the pitch angle
+        }
 
-         // 57.296 = 1 / (3.142 / 180) The asin function is in radians
-        accelAnglePitch = asinf(accelY/angleTotalVector)* 57.296f;                // Calculate the pitch angle
-        accelAngleRoll = asinf(accelX/angleTotalVector)* -57.296f;                // Calculate the roll angle
-
-        anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;            // Correct the drift of the gyro pitch angle with the accelerometer pitch angle
-        angleRoll = angleRoll * 0.9996f + accelAngleRoll * 0.0004f;               // Correct the drift of the gyro roll angle with the accelerometer roll angle
+        //
+        // Complementary filter
+        //
+        anglePitch = anglePitch * 0.9995f + accelAnglePitch * 0.0005f;              // Correct the drift of the gyro pitch angle with the accelerometer pitch angle
         
         //
         // Send pitch and roll data to LCD
@@ -280,9 +283,6 @@ int main(void)
             count = 0;
             Nokia5110_SetCursor(6,0);
             Nokia5110_OutFloat(&anglePitch);
-
-            Nokia5110_SetCursor(6,1);
-            Nokia5110_OutFloat(&angleRoll);
         }
       }
     }

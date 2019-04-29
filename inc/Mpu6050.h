@@ -47,6 +47,9 @@
 // Low Pass Filter
 #define I2C_MPU_6050_CONFIG_LOW_PASS_FILTER_43_HZ        0x03 // 43 Hz
 
+#define MAX_ACCEL_Z_AXIS                       4200
+#define MIN_ACCEL_Z_AXIS                       -4200
+
 //********MPU_6050_Init*****************
 // Initialize the MPU-6050 IMU by configuring the power mode,
 // accelerometer and gyroscope configuration
