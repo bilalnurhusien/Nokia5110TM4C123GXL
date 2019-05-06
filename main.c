@@ -49,7 +49,7 @@ void ToggleGpio(uint32_t ui32Port, uint8_t ui8Pin)
 // used to clear the IMU refresh flag
 // every 10 ms
 //
-void Timer0A_Handler(void){
+void TimerRefreshImuDataHandler(void){
     imuDataRefreshTimeout = 1;
 }
 
@@ -57,7 +57,7 @@ void Timer0A_Handler(void){
 // Interrupt handler for Timer0B which is
 // used to a sort of heartbeat for the application
 //
-void Timer0B_Handler(void){
+void TimerHeartBeatHandler(void){
     heartBeat = 1;
 }
 
@@ -135,14 +135,14 @@ void InitializeGPIOF()
 bool Initialize()
 {
     //
-    // Initialize timer A  to 10 msec timeout and timer B to 1 sec timeout
+    // Initialize timer for IMU to 10 msec and timer for heart beat to 1 sec 
     //
-    uint32_t periodA = SysCtlClockGet()/100;
-    uint32_t periodB = SysCtlClockGet();
+    uint32_t periodImu = SysCtlClockGet()/100;
+    uint32_t periodHeartBeat = SysCtlClockGet();
  
-    if (!Timer_Init(&Timer0A_Handler, &Timer0B_Handler, periodA, periodB))
+    if (!Timer_Init(&TimerRefreshImuDataHandler, &TimerHeartBeatHandler, periodImu, periodHeartBeat))
     {
-        printf("Failed to initialize Timer0A");
+        printf("Failed to initialize timers");
         return false;     
     }
      

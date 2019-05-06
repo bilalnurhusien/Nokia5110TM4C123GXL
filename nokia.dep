@@ -8,13 +8,11 @@
             <file>$PROJ_DIR$\Debug\Obj\Timer.o</file>
             <file>$PROJ_DIR$\Debug\Obj\Timer.pbi</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\sysctl.h</file>
-            <file>$TOOLKIT_DIR$\config\linker\TexasInstruments\TM4C123GH6.icf</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
             <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
             <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_gpio.h</file>
-            <file>$TOOLKIT_DIR$\lib\dl7M_tln.a</file>
             <file>$PROJ_DIR$\Debug\Obj\main.o</file>
             <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
@@ -31,12 +29,9 @@
             <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Product_stdlib.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\fpu.h</file>
-            <file>$TOOLKIT_DIR$\lib\m7M_tlv.a</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\timer.h</file>
             <file>$PROJ_DIR$\Debug\Obj\Nokia5110.pbi</file>
-            <file>$TOOLKIT_DIR$\lib\rt7M_tl.a</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_ints.h</file>
-            <file>$PROJ_DIR$\Debug\List\nokia.map</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_i2c.h</file>
             <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
             <file>$PROJ_DIR$\Debug\Exe\nokia.out</file>
@@ -51,11 +46,9 @@
             <file>$PROJ_DIR$\inc\Nokia5110.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_memmap.h</file>
             <file>$PROJ_DIR$\inc\tm4c123gh6pm.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gcc\libdriver.a</file>
             <file>$PROJ_DIR$\Mpu6050.c</file>
             <file>$PROJ_DIR$\inc\Mpu6050.h</file>
             <file>$PROJ_DIR$\Nokia5110.c</file>
-            <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
             <file>$PROJ_DIR$\main.c</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\debug.h</file>
             <file>$PROJ_DIR$\inc\Timer.h</file>
@@ -67,40 +60,21 @@
             <file>$PROJ_DIR$\Timer.c</file>
         </outputs>
         <file>
-            <name>$PROJ_DIR$\Debug\Exe\nokia.out</name>
-            <outputs>
-                <tool>
-                    <name>ILINK</name>
-                    <file> 31</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ILINK</name>
-                    <file> 3 55 20 10 19 13 0 46 50 29 26 9</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
             <name>$PROJ_DIR$\I2C2.c</name>
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 20</file>
+                    <file> 18</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 37</file>
+                    <file> 32</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 21 11 14 12 4 7 5 42 45 32 44 18 8 22 36 2 15</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
-                    <file> 36 21 44 12 42 8 15 14 45 5 32 18 22 2 11 4 7</file>
+                    <file> 31 19 39 10 37 7 13 12 40 4 27 16 20 2 9 3 6</file>
                 </tool>
             </inputs>
         </file>
@@ -109,21 +83,17 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 19</file>
+                    <file> 17</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 17</file>
+                    <file> 15</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 23 11 14 12 4 7 35 5 45 21 32 44 18 8 22 2 36 15 48 42</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
-                    <file> 21 2 12 44 14 45 8 15 5 32 18 22 36 48 11 35 4 7 23 42</file>
+                    <file> 19 2 10 39 12 40 7 13 4 27 16 20 31 42 9 30 3 6 21 37</file>
                 </tool>
             </inputs>
         </file>
@@ -132,21 +102,17 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 13</file>
+                    <file> 11</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 28</file>
+                    <file> 25</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 23 11 14 12 4 7 35 21 33 24 45 43</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
-                    <file> 14 43 33 11 4 21 45 35 7 24 23 12</file>
+                    <file> 12 38 28 9 3 19 40 30 6 22 21 10</file>
                 </tool>
             </inputs>
         </file>
@@ -155,21 +121,17 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 10</file>
+                    <file> 8</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 6</file>
+                    <file> 5</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 23 11 14 12 4 7 35 21 5 41 40 30 18 44 52 25 8 36 2 16 15 43 48 42 45 53</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
-                    <file> 45 14 43 25 30 36 40 5 44 15 53 12 21 41 18 52 8 2 16 48 11 35 4 7 42 23</file>
+                    <file> 40 12 38 23 26 31 35 4 39 13 46 10 19 36 16 45 7 2 14 42 9 30 3 6 37 21</file>
                 </tool>
             </inputs>
         </file>
@@ -178,7 +140,7 @@
             <outputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 34 31</file>
+                    <file> 29</file>
                 </tool>
             </outputs>
         </file>
@@ -187,21 +149,17 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 55</file>
+                    <file> 48</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 56</file>
+                    <file> 49</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 23 11 14 12 4 7 35 21 5 2 54 16 44 58</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
-                    <file> 14 54 5 44 12 21 2 16 58 11 35 4 7 23</file>
+                    <file> 12 47 4 39 10 19 2 14 51 9 30 3 6 21</file>
                 </tool>
             </inputs>
         </file>
@@ -219,12 +177,8 @@
             </outputs>
             <inputs>
                 <tool>
-                    <name>ICCARM</name>
-                    <file> 23 11 14 12 4 7 35 21 5 2 27 16 44 53</file>
-                </tool>
-                <tool>
                     <name>BICOMP</name>
-                    <file> 27 11 4 5 44 35 7 21 2 16 53 14 12 23</file>
+                    <file> 24 9 3 4 39 30 6 19 2 14 46 12 10 21</file>
                 </tool>
             </inputs>
         </file>
