@@ -35,8 +35,7 @@ volatile int heartBeat = 0;
 #define ADC_MAX_VOLTAGE 3.3f
 
 //
-// Toggle GPIO B7 which is used for debugging purposes
-// when getting data from the IMU
+// Toggle GPIO
 //
 void ToggleGpio(uint32_t ui32Port, uint8_t ui8Pin)
 {
@@ -92,12 +91,27 @@ void SW1InterruptHandler() {
 }
 
 //
-// Initialize GPIOF4 as an input and connected to SW1
+// Initialize GPIOF
 //
-void InitializeGPIOF4()
+void InitializeGPIOF()
 {
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);        // Enable port F
-    SysCtlDelay(3);
+
+    //
+    // Wait for the GPIOF module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
+    {
+    }
+    
+    //
+    // Set pin 1 and 2 as outputs, SW controlled.
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);    
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
+    GPIOPinWrite(GPIO_PORTF_BASE, 0);
+    
   
     GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4);  // Init PF4 as input
     GPIOPadConfigSet(GPIO_PORTF_BASE,
@@ -138,9 +152,9 @@ bool Initialize()
     Output_Init();
     
     //
-    // Initialize GPIOF4 (SW1) as Input
+    // Initialize GPIOF (1, 2, and 4)
     //
-    InitializeGPIOF4();
+    InitializeGPIOF();
     
     //
     // MPU-6050 Initialization
@@ -182,26 +196,8 @@ bool Initialize()
     //
     GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
     
-    GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, 0);
-    
-    //
-    // Enable the GPIOF peripheral
-    //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-    
-    //
-    // Wait for the GPIOF module to be ready.
-    //
-    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
-    {
-    }
-    
-    //
-    // Set pin 1 and 2 as outputs, SW controlled.
-    //
-    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
-    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
-    
+    GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, 0); 
+
     //
     // Iniitalize ADC0
     //
@@ -388,6 +384,9 @@ int main(void)
     anglePitch = accelAnglePitch;
         
     int count = 0;
+    
+    ADC_0_TriggerCapture();
+    
     while (1)
     {
       if (recordReferencePitchAngle)
@@ -403,12 +402,12 @@ int main(void)
         if (ADC_0_IsDataAvailable())
         {
             uint32_t adcValue = ADC_0_GetData();          
-            voltageValue = (adcValue / ADC_RESOLUTION) * ADC_MAX_VOLTAGE
+            voltageValue = (adcValue / ADC_RESOLUTION) * ADC_MAX_VOLTAGE;
 
             ADC_0_TriggerCapture();
         }
         
-        ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_2);
+        ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_3);
       }
       
       if (imuDataRefreshTimeout)

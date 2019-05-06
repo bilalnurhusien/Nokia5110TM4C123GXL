@@ -2108,9 +2108,6 @@
         <name>$PROJ_DIR$\inc\Timer0.h</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\inc\Timer0A.h</name>
-    </file>
-    <file>
         <name>$PROJ_DIR$\inc\tm4c123gh6pm.h</name>
     </file>
 </project>
