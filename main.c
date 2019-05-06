@@ -32,7 +32,7 @@ volatile int recordReferencePitchAngle = 0;
 volatile int heartBeat = 0;
 
 #define ADC_RESOLUTION  4096.0f
-#define ADC_DESIRED_VOLTAGE 3.3f
+#define ADC_MAX_VOLTAGE 3.3f
 
 //
 // Toggle GPIO B7 which is used for debugging purposes
@@ -403,7 +403,7 @@ int main(void)
         if (ADC_0_IsDataAvailable())
         {
             uint32_t adcValue = ADC_0_GetData();          
-            voltageValue = (adcValue / ADC_RESOLUTION) * ADC_DESIRED_VOLTAGE
+            voltageValue = (adcValue / ADC_RESOLUTION) * ADC_MAX_VOLTAGE
 
             ADC_0_TriggerCapture();
         }
