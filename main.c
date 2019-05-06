@@ -18,7 +18,7 @@
 
 #include "inc/Nokia5110.h"
 #include "inc/Mpu6050.h"
-#include "inc/Timer0.h"
+#include "inc/Timer.h"
 
 //
 // Notes:
@@ -110,9 +110,10 @@ void InitializeGPIOF()
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);    
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
-    GPIOPinWrite(GPIO_PORTF_BASE, 0);
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0 );
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0 );
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0 );
     
-  
     GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4);  // Init PF4 as input
     GPIOPadConfigSet(GPIO_PORTF_BASE,
                      GPIO_PIN_4,
