@@ -134,7 +134,6 @@ void InitializeGPIOF()
 //
 bool Initialize()
 {
-  
     //
     // Initialize timer A  to 10 msec timeout and timer B to 1 sec timeout
     //
