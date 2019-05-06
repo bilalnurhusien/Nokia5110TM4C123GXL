@@ -2102,10 +2102,10 @@
         <name>$PROJ_DIR$\inc\Nokia5110.h</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\Timer.c</name>
+        <name>$PROJ_DIR$\Timers.c</name>
     </file>
     <file>
-        <name>$PROJ_DIR$\inc\Timer.h</name>
+        <name>$PROJ_DIR$\inc\Timers.h</name>
     </file>
     <file>
         <name>$PROJ_DIR$\inc\tm4c123gh6pm.h</name>

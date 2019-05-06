@@ -18,7 +18,7 @@
 
 #include "inc/Nokia5110.h"
 #include "inc/Mpu6050.h"
-#include "inc/Timer.h"
+#include "inc/Timers.h"
 
 //
 // Notes:
@@ -45,17 +45,14 @@ void ToggleGpio(uint32_t ui32Port, uint8_t ui8Pin)
 }
 
 //
-// Interrupt handler for Timer0A which is
-// used to clear the IMU refresh flag
-// every 10 ms
+// Interrupt handler that causes main thread to retrieve data from IMU every 10 ms
 //
 void TimerRefreshImuDataHandler(void){
     imuDataRefreshTimeout = 1;
 }
 
 //
-// Interrupt handler for Timer0B which is
-// used to a sort of heartbeat for the application
+// Interrupt handler for the heart beat
 //
 void TimerHeartBeatHandler(void){
     heartBeat = 1;
@@ -91,11 +88,14 @@ void SW1InterruptHandler() {
 }
 
 //
-// Initialize GPIOF
+// Initialize GPIOF (Pins: 1, 2, and 4)
 //
 void InitializeGPIOF()
 {
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);        // Enable port F
+    //
+    // Enable port F
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
 
     //
     // Wait for the GPIOF module to be ready.
@@ -119,13 +119,17 @@ void InitializeGPIOF()
                      GPIO_PIN_4,
                      GPIO_STRENGTH_2MA,
                      GPIO_PIN_TYPE_STD_WPU);            // Enable weak pullup resistor for PF4
-
+    
+    //
     // Interrupt setup
+    //
     GPIOIntDisable(GPIO_PORTF_BASE, GPIO_PIN_4);        // Disable interrupt for PF4 (in case it was enabled)
     GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);          // Clear pending interrupts for PF4
-    GPIOIntRegister(GPIO_PORTF_BASE, SW1InterruptHandler);     // Register our handler function for port F
-    GPIOIntTypeSet(GPIO_PORTF_BASE, GPIO_PIN_4,
-    GPIO_FALLING_EDGE);                                 // Configure PF4 for falling edge trigger
+    GPIOIntRegister(GPIO_PORTF_BASE,
+                    SW1InterruptHandler);               // Register our handler function for port F
+    GPIOIntTypeSet(GPIO_PORTF_BASE,
+                   GPIO_PIN_4,
+                   GPIO_FALLING_EDGE);                  // Configure PF4 for falling edge trigger
     GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_4);         // Enable interrupt for PF4
 }
   
@@ -140,7 +144,7 @@ bool Initialize()
     uint32_t periodImu = SysCtlClockGet()/100;
     uint32_t periodHeartBeat = SysCtlClockGet();
  
-    if (!Timer_Init(&TimerRefreshImuDataHandler, &TimerHeartBeatHandler, periodImu, periodHeartBeat))
+    if (!Timers_Init(&TimerRefreshImuDataHandler, &TimerHeartBeatHandler, periodImu, periodHeartBeat))
     {
         printf("Failed to initialize timers");
         return false;     
@@ -152,7 +156,7 @@ bool Initialize()
     Output_Init();
     
     //
-    // Initialize GPIOF (1, 2, and 4)
+    // Initialize GPIOF 
     //
     InitializeGPIOF();
     
@@ -320,7 +324,7 @@ int main(void)
     int8_t initializeFailed = 0;
   
     //
-    // Enable floating point unit and disable stacking (FPU instructions aren't allowed within interrupt handlers)
+    // Enable floating point unit and disable stacking (i.e. FPU instructions aren't allowed within interrupt handlers)
     //
     FPUEnable();
     FPUStackingDisable();
@@ -329,9 +333,10 @@ int main(void)
     // Set clock to 16 MHz
     //
     SysCtlClockSet(SYSCTL_SYSDIV_1|SYSCTL_USE_PLL|SYSCTL_OSC_MAIN|SYSCTL_XTAL_16MHZ);
-    
+    SysCtlDelay(3);
+
     //
-    // Initialize timer and peripherals
+    // Initialize timers and peripherals
     //
     if (!Initialize())
     {
@@ -345,6 +350,9 @@ int main(void)
         {
             heartBeat = 0;
             
+            //
+            // Toggle Red LED pin
+            //
             ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_1);
         }
     }
@@ -399,6 +407,9 @@ int main(void)
       {
         heartBeat = 0;
         
+        //
+        // Get value from voltage value from ADC 
+        //
         if (ADC_0_IsDataAvailable())
         {
             uint32_t adcValue = ADC_0_GetData();          
@@ -407,6 +418,9 @@ int main(void)
             ADC_0_TriggerCapture();
         }
         
+        //
+        // Toggle Green LED pin
+        //
         ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_3);
       }
       
@@ -426,20 +440,23 @@ int main(void)
         gyroX -= gyroXCal;
         
         //
-        // Gyro angle calculation: Integrate the gyro values every 10 ms
+        // Gyro angle calculation: Integrate the gyro values (angular velocity) every 10 ms
         // and divide by the sensitivity scale factor (65.5 LSB/g). This will
         // give us the current angular change in position. Note: gyro values will drift 
-        // over time, so we'll need to combine this value with acceleromter data later on
-        // 0.0001527 = 1 / 100Hz / 65.5
+        // over time, so we'll need to combine this value with acceleromter data later on.
+        // Note: 0.0001527 = 1 / 100Hz / 65.5
         //
         anglePitch += gyroX * 0.0001527f;                                       // Calculate the traveled pitch angle and add this to the anglePitch variable
 
         // Note - the accelerometer data is sensitive to vibration from the motor
         // so we'll need to combine the accelerometer data with the gyroscope using
-        // a complemetary filter later on in the code.        
-        accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  //Calculate the total accelerometer vector
+        // a complemetary filter later on in the code. Calculate the total accelerometer vector       
+        accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  
         angleIntermCalc = ((float)accelY) / (accelAngleTotal);
+        
+        //
         // 57.296 = 1 / (3.142 / 180) The asin function is in radians
+        //
         accelAnglePitch = asinf(angleIntermCalc)* 57.296f;              // Calculate the pitch angle
 
         //
