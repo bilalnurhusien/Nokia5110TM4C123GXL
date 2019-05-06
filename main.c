@@ -408,7 +408,7 @@ int main(void)
         heartBeat = 0;
         
         //
-        // Get value from voltage value from ADC 
+        // Get voltage value from ADC 
         //
         if (ADC_0_IsDataAvailable())
         {

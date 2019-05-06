@@ -7,22 +7,17 @@
         <outputs>
             <file>$PROJ_DIR$\Debug\Obj\Mpu6050.pbi</file>
             <file>$PROJ_DIR$\Debug\Obj\I2C2.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\Timer.pbi</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\i2c.h</file>
             <file>$PROJ_DIR$\Debug\Obj\Mpu6050.o</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\fpu.h</file>
-            <file>$TOOLKIT_DIR$\lib\m7M_tlv.a</file>
             <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\timer.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_ints.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\sysctl.h</file>
             <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
-            <file>$TOOLKIT_DIR$\lib\rt7M_tl.a</file>
-            <file>$PROJ_DIR$\Debug\List\nokia.map</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_i2c.h</file>
             <file>$PROJ_DIR$\Debug\Obj\Nokia5110.pbi</file>
-            <file>$TOOLKIT_DIR$\lib\dl7M_tln.a</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
             <file>$PROJ_DIR$\Debug\Obj\Nokia5110.o</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\pin_map.h</file>
@@ -34,13 +29,10 @@
             <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
             <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
             <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-            <file>$TOOLKIT_DIR$\config\linker\TexasInstruments\TM4C123GH6.icf</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\interrupt.h</file>
             <file>$PROJ_DIR$\Debug\Obj\main.o</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\adc.h</file>
             <file>$TOOLKIT_DIR$\inc\c\math.h</file>
-            <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gcc\libdriver.a</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gpio.h</file>
             <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_memmap.h</file>
@@ -62,36 +54,14 @@
             <file>$PROJ_DIR$\ADC0.c</file>
             <file>$PROJ_DIR$\Nokia5110.c</file>
             <file>$PROJ_DIR$\inc\Mpu6050.h</file>
-            <file>$PROJ_DIR$\Timer.c</file>
-            <file>$PROJ_DIR$\inc\Timer.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\Timer.o</file>
             <file>$PROJ_DIR$\Debug\Obj\Timers.o</file>
             <file>$PROJ_DIR$\inc\Timers.h</file>
             <file>$PROJ_DIR$\Timers.c</file>
             <file>$PROJ_DIR$\Debug\Obj\Timers.pbi</file>
         </outputs>
         <file>
-            <name>$PROJ_DIR$\Debug\Exe\nokia.out</name>
-            <outputs>
-                <tool>
-                    <name>ILINK</name>
-                    <file> 14</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ILINK</name>
-                    <file> 29 40 1 31 5 19 60 35 34 13 7 17</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
             <name>$PROJ_DIR$\Mpu6050.c</name>
             <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 5</file>
-                </tool>
                 <tool>
                     <name>BICOMP</name>
                     <file> 0</file>
@@ -100,11 +70,11 @@
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 24 26 28 27 3 18 41 8 51 22 15 38 21 25 4 11 36 20 56 52</file>
+                    <file> 19 21 23 22 2 13 33 6 43 17 11 30 16 20 3 9 28 15 48 44</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 22 11 27 38 28 51 25 20 8 15 21 4 36 56 26 41 3 18 24 52</file>
+                    <file> 17 9 22 30 23 43 20 15 6 11 16 3 28 48 21 33 2 13 19 44</file>
                 </tool>
             </inputs>
         </file>
@@ -117,17 +87,17 @@
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 43</file>
+                    <file> 35</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 22 26 28 27 3 18 8 52 51 15 38 21 25 4 36 11 20</file>
+                    <file> 17 21 23 22 2 13 6 44 43 11 30 16 20 3 28 9 15</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 36 22 38 27 52 25 20 28 51 8 15 21 4 11 26 3 18</file>
+                    <file> 28 17 30 22 44 20 15 23 43 6 11 16 3 9 21 2 13</file>
                 </tool>
             </inputs>
         </file>
@@ -136,7 +106,49 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 31</file>
+                    <file> 25</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 10</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 19 21 23 22 2 13 33 17 6 27 37 8 16 30 38 5 20 28 9 24 15 40 48 44 43 50</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\ADC0.c</name>
+            <outputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 32</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 34</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 19 21 23 22 2 13 33 17 6 9 26 24 30 41</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 23 26 6 30 22 17 9 24 41 21 33 2 13 19</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\Nokia5110.c</name>
+            <outputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 14</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
@@ -146,76 +158,11 @@
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 24 26 28 27 3 18 41 22 8 33 45 10 21 38 46 6 25 36 11 30 20 48 56 52 51 61</file>
+                    <file> 19 21 23 22 2 13 33 17 29 18 43 40</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 48 6 27 8 22 10 36 28 38 20 61 45 51 33 21 46 25 11 30 56 26 41 3 18 52 24</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\ADC0.c</name>
-            <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 40</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 42</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 24 26 28 27 3 18 41 22 8 11 32 30 38 49</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 28 32 8 38 27 22 11 30 49 26 41 3 18 24</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\Nokia5110.c</name>
-            <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 19</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 16</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 24 26 28 27 3 18 41 22 37 23 51 48</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 28 48 37 26 3 22 51 41 18 23 24 27</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\Timer.c</name>
-            <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 59</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 2</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 24 26 28 27 3 18 41 22 8 11 9 30 38 58</file>
+                    <file> 23 40 29 21 2 17 43 33 13 18 19 22</file>
                 </tool>
             </inputs>
         </file>
@@ -224,7 +171,7 @@
             <outputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 44 14</file>
+                    <file> 36</file>
                 </tool>
             </outputs>
         </file>
@@ -233,21 +180,21 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 60</file>
+                    <file> 49</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 63</file>
+                    <file> 52</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 24 26 28 27 3 18 41 22 8 11 9 30 38 61</file>
+                    <file> 19 21 23 22 2 13 33 17 6 9 7 24 30 50</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 9 26 3 8 38 41 18 22 11 30 61 28 27 24</file>
+                    <file> 7 21 2 6 30 33 13 17 9 24 50 23 22 19</file>
                 </tool>
             </inputs>
         </file>
