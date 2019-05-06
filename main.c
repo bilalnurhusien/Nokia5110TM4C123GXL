@@ -10,13 +10,15 @@
 #include <driverlib/fpu.h>
 #include <inc/hw_gpio.h>
 #include <driverlib/gpio.h>
+#include <driverlib/sysctl.h>
+#include <driverlib/gpio.h>
 #include <driverlib/interrupt.h>
 #include <driverlib/pin_map.h>
 #include <driverlib/sysctl.h>
 
 #include "inc/Nokia5110.h"
 #include "inc/Mpu6050.h"
-#include "inc/Timer0A.h"
+#include "inc/Timer0.h"
 
 //
 // Notes:
@@ -27,16 +29,20 @@
 
 volatile int imuDataRefreshTimeout = 0;
 volatile int recordReferencePitchAngle = 0;
+volatile int heartBeat = 0;
+
+#define ADC_RESOLUTION  4096.0f
+#define ADC_DESIRED_VOLTAGE 3.3f
 
 //
 // Toggle GPIO B7 which is used for debugging purposes
 // when getting data from the IMU
 //
-void ToggleGpioB7()
+void ToggleGpio(uint32_t ui32Port, uint8_t ui8Pin)
 {
-    uint8_t gpioB7Status =  (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_7) & 0xFF);
-    gpioB7Status ^= GPIO_PIN_7;
-    GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, gpioB7Status);
+    uint8_t gpioStatus =  (GPIOPinRead(ui32Port, ui8Pin) & 0xFF);
+    gpioStatus ^= ui8Pin;
+    GPIOPinWrite(ui32Port, ui8Pin, gpioStatus);
 }
 
 //
@@ -46,6 +52,14 @@ void ToggleGpioB7()
 //
 void Timer0A_Handler(void){
     imuDataRefreshTimeout = 1;
+}
+
+//
+// Interrupt handler for Timer0B which is
+// used to a sort of heartbeat for the application
+//
+void Timer0B_Handler(void){
+    heartBeat = 1;
 }
 
 //
@@ -68,49 +82,89 @@ void SetUpLcdScreen()
 }
 
 //
+// Interrupt handler for SW1
+//
+void SW1InterruptHandler() {
+    if ((GPIOIntStatus(GPIO_PORTF_BASE, false) & GPIO_PIN_4) == GPIO_PIN_4) {
+        GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);  // Clear interrupt flag
+        recordReferencePitchAngle = true;
+    }
+}
+
+//
+// Initialize GPIOF4 as an input and connected to SW1
+//
+void InitializeGPIOF4()
+{
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);        // Enable port F
+    SysCtlDelay(3);
+  
+    GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4);  // Init PF4 as input
+    GPIOPadConfigSet(GPIO_PORTF_BASE,
+                     GPIO_PIN_4,
+                     GPIO_STRENGTH_2MA,
+                     GPIO_PIN_TYPE_STD_WPU);            // Enable weak pullup resistor for PF4
+
+    // Interrupt setup
+    GPIOIntDisable(GPIO_PORTF_BASE, GPIO_PIN_4);        // Disable interrupt for PF4 (in case it was enabled)
+    GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);          // Clear pending interrupts for PF4
+    GPIOIntRegister(GPIO_PORTF_BASE, SW1InterruptHandler);     // Register our handler function for port F
+    GPIOIntTypeSet(GPIO_PORTF_BASE, GPIO_PIN_4,
+    GPIO_FALLING_EDGE);                                 // Configure PF4 for falling edge trigger
+    GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_4);         // Enable interrupt for PF4
+}
+  
+//
 // Initialize LCD, IMU, and Timers
 //
 bool Initialize()
 {
+  
+    //
+    // Initialize timer A  to 10 msec timeout and timer B to 1 sec timeout
+    //
+    uint32_t periodA = SysCtlClockGet()/100;
+    uint32_t periodB = SysCtlClockGet();
+ 
+    if (!Timer_0_Init(&Timer0A_Handler, &Timer0B_Handler, periodA, periodB))
+    {
+        printf("Failed to initialize Timer0A");
+        return false;     
+    }
+     
     //
     // Nokia 5110 Initialization
     //
     Output_Init();
     
     //
+    // Initialize GPIOF4 (SW1) as Input
+    //
+    InitializeGPIOF4();
+    
+    //
     // MPU-6050 Initialization
     //
     MPU_6050_Init(I2C_MPU_6050_GYRO_CONFIG_500_DPS, I2C_MPU_6050_ACCEL_CONFIG_8G);
     
-    int success = 0;
+    int successfulProbe = 0;
     for (int i = 0; i < 3; ++i)
     {
         if (MPU_6050_Probe())
         {
-          success = 1;
+          successfulProbe = 1;
           break;
         }
         SysCtlDelay(3);
     }
     
-    
-    if (success != 1)
+    if (successfulProbe != 1)
     {
         printf("Failed to find MPU-6050 IMU\n");
         return false;
     }
                   
-    //
-    // Initialize timer to 10ms second timeout
-    //
-    uint32_t period = SysCtlClockGet()/100;
-    
-    if (!Timer_0A_Init(&Timer0A_Handler, period))
-    {
-        printf("Failed to initialize Timer0A");
-        return false;     
-    }
-    
+
     //
     // Enable the GPIOB peripheral
     //
@@ -130,11 +184,34 @@ bool Initialize()
     
     GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, 0);
     
+    //
+    // Enable the GPIOF peripheral
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+    
+    //
+    // Wait for the GPIOF module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF))
+    {
+    }
+    
+    //
+    // Set pin 1 and 2 as outputs, SW controlled.
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+    
+    //
+    // Iniitalize ADC0
+    //
+    ADC_0_Init();
+    
     return true;
 }
 
 //
-// Calibrate the IMU by taking several samples and using that value for future use
+// Calibrate the gyroscope data by taking several samples and using those values for future use
 //
 void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCal)
 {
@@ -157,7 +234,7 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
 
     Nokia5110_Clear();
     Nokia5110_SetCursor(0,0);
-    Nokia5110_OutString("MPU-6050 IMU");
+    Nokia5110_OutString("Gyro");
     Nokia5110_SetCursor(0,1);
     Nokia5110_OutString("Calibrating");
     
@@ -168,7 +245,7 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
             //
             // Toggle GPIO B7 for debugging purposes
             //
-            ToggleGpioB7();
+            ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
             imuDataRefreshTimeout = 0;
             MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
             gyroXCalSum += gyroX;
@@ -187,8 +264,65 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
     *gyroZCal = (gyroZCalSum / CalibrationCount);
 }
 
+//
+// Calibrate the accelerometer data by taking several samples and using those values for future use
+//
+void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * accelZCal)
+{
+    if (NULL == accelXCal ||
+        NULL == accelYCal ||
+        NULL == accelZCal)
+    {
+        printf("Invalid argument\n");
+        return;
+    }
+    
+    const uint32_t CalibrationCount = 500;
+   
+    int16_t accelX, accelY, accelZ, i;
+    int64_t accelXCalSum,  accelYCalSum, accelZCalSum;
+
+    accelXCalSum = accelYCalSum = accelZCalSum = 0;
+    *accelXCal = *accelYCal = *accelZCal = 0;
+    accelX = accelY = accelZ = i = 0;
+
+    Nokia5110_Clear();
+    Nokia5110_SetCursor(0,0);
+    Nokia5110_OutString("Accel");
+    Nokia5110_SetCursor(0,1);
+    Nokia5110_OutString("Calibrating");
+    
+    while (i < CalibrationCount)
+    {     
+        if (imuDataRefreshTimeout)
+        {
+            //
+            // Toggle GPIO B7 for debugging purposes
+            //
+            ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+            imuDataRefreshTimeout = 0;
+            MPU_6050_GetGyroData(&accelX, &accelY, &accelZ);
+            accelXCalSum += accelX;
+            accelYCalSum += accelY;
+            accelZCalSum += accelZ;
+            ++i;
+            if ((i % 100) == 0)
+            {
+                Nokia5110_OutChar('.');
+            }
+        }
+    }
+    
+    *accelXCal = (accelXCalSum / CalibrationCount);
+    *accelYCal = (accelYCalSum / CalibrationCount);
+    *accelZCal = (accelZCalSum / CalibrationCount);
+}
+
+
 int main(void)
 {
+    int8_t initializeFailed = 0;
+  
     //
     // Enable floating point unit and disable stacking (FPU instructions aren't allowed within interrupt handlers)
     //
@@ -206,19 +340,32 @@ int main(void)
     if (!Initialize())
     {
         printf("Failed to initialize\n");
-        return false;
+        initializeFailed = 1;
     }
-
+    
+    while (initializeFailed)
+    {
+        if (heartBeat)
+        {
+            heartBeat = 0;
+            
+            ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_1);
+        }
+    }
+    
     int16_t gyroXCal, gyroYCal, gyroZCal;
+    int16_t accelXCal, accelYCal, accelZCal;
     int16_t gyroX, gyroY, gyroZ;
     int16_t accelX, accelY, accelZ;
     volatile float anglePitch = 0;
     volatile float accelAnglePitch  = 0;
-    volatile float accelAngleRoll = 0;
     volatile float angleIntermCalc = 0;
-    volatile float pitchReferenceDeg = 90.0f;
-
+    volatile float anglePitchReference = 90.0f;
+    volatile float accelAngleTotal = 0;
+    volatile float voltageValue = 0;
+    
     CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
+    CalibrateAccelData(&accelXCal, &accelYCal, &accelZCal);
     
     SetUpLcdScreen();
 
@@ -233,63 +380,68 @@ int main(void)
     gyroZ -= gyroZCal;
     
     //
-    // 57.296 = 1 / (3.142 / 180) - the asin function returns radians
+    // Note: 57.296 = 1 / (3.142 / 180) - the asin function returns radians
     //
-    angleIntermCalc = accelY / ((float)accelZ);
-    accelAnglePitch = atanf(angleIntermCalc)* 57.296f;                // Calculate the pitch angle
-     
-    anglePitch = accelAnglePitch;                                               // Set the initial gyro pitch angle equal to the accelerometer pitch angle 
-    
+    accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  //Calculate the total accelerometer vector
+    angleIntermCalc = ((float)accelY) / (accelAngleTotal);    
+    accelAnglePitch = asinf(angleIntermCalc)* 57.296f;                          // Calculate the pitch angle
+    anglePitch = accelAnglePitch;
+        
     int count = 0;
     while (1)
     {
+      if (recordReferencePitchAngle)
+      {
+        recordReferencePitchAngle = 0;
+        anglePitchReference = anglePitch;
+      }
+      
+      if (heartBeat)
+      {
+        heartBeat = 0;
+        
+        if (ADC_0_IsDataAvailable())
+        {
+            uint32_t adcValue = ADC_0_GetData();          
+            voltageValue = (adcValue / ADC_RESOLUTION) * ADC_DESIRED_VOLTAGE
+
+            ADC_0_TriggerCapture();
+        }
+        
+        ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_2);
+      }
+      
       if (imuDataRefreshTimeout)
       {
         imuDataRefreshTimeout = 0;
         ++count;
         
         //
-        // Toggle GPIO B7 for debugging purposes
+        // Toggle GPIO B7 at start of loop for debugging purposes
         //
-        ToggleGpioB7();
+        ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
 
         MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
         MPU_6050_GetAccelData(&accelX, &accelY, &accelZ);
         
         gyroX -= gyroXCal;
-
+        
         //
         // Gyro angle calculation: Integrate the gyro values every 10 ms
         // and divide by the sensitivity scale factor (65.5 LSB/g). This will
-        // give us the current angular position. Note: gyro values will drift 
-        // over time, so we'll need to combine this value with acceleromter data
+        // give us the current angular change in position. Note: gyro values will drift 
+        // over time, so we'll need to combine this value with acceleromter data later on
         // 0.0001527 = 1 / 100Hz / 65.5
         //
-        anglePitch += gyroX * 0.0001527f;                                        // Calculate the traveled pitch angle and add this to the angle_pitch variable
-  
-        //
-        // Accelerometer calculations:
-        // (make Z accelerometer component always positive)
-        if (accelZ < 0)
-        {
-           accelZ = -accelZ;
-        }
-        
+        anglePitch += gyroX * 0.0001527f;                                       // Calculate the traveled pitch angle and add this to the anglePitch variable
+
         // Note - the accelerometer data is sensitive to vibration from the motor
         // so we'll need to combine the accelerometer data with the gyroscope using
-        // a complemetary filter later on in the code. We'll also limit the angle 
-        // to +/- 90 deg.
-        //
-        if (accelZ < 0.5)
-        {
-            accelAnglePitch = (accelY < 0 ? -90.0f : 90.0f);
-        }
-        else
-        {
-            angleIntermCalc = accelY / ((float)accelZ);
-            // 57.296 = 1 / (3.142 / 180) The asin function is in radians
-            accelAnglePitch = atanf(angleIntermCalc)* 57.296f;              // Calculate the pitch angle
-        }
+        // a complemetary filter later on in the code.        
+        accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  //Calculate the total accelerometer vector
+        angleIntermCalc = ((float)accelY) / (accelAngleTotal);
+        // 57.296 = 1 / (3.142 / 180) The asin function is in radians
+        accelAnglePitch = asinf(angleIntermCalc)* 57.296f;              // Calculate the pitch angle
 
         //
         // Complementary filter
@@ -305,7 +457,9 @@ int main(void)
             Nokia5110_SetCursor(6,0);
             Nokia5110_OutFloat(anglePitch);
             Nokia5110_SetCursor(6,1);
-            Nokia5110_OutFloat(pitchReferenceDeg);
+            Nokia5110_OutFloat(anglePitchReference);
+            Nokia5110_SetCursor(6,2);
+            Nokia5110_OutFloat(voltageValue);           
         }
       }
     }

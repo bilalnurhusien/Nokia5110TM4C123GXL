@@ -53,7 +53,7 @@
         <LMIFTDIfoundProbes />
     </LMIFTDIDriver>
     <DebugChecksum>
-        <Checksum>2694070208</Checksum>
+        <Checksum>2805572363</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -70,18 +70,29 @@
     </DisassembleMode>
     <Breakpoints>
         <Bp0>_ "EMUL_DATA" "GPIO_PORTA_DATA_R" 0 0 0 116 0 "" 0 "" 0 0 0 4294967295</Bp0>
-        <Bp1>_ "STD_CODE" "{$PROJ_DIR$\Nokia5110.c}.434.1" 0 0 0 0 "" 0 ""</Bp1>
+        <Bp1>_ "STD_CODE" "{$PROJ_DIR$\Nokia5110.c}.435.1" 0 0 0 0 "" 0 ""</Bp1>
         <Bp2>_ "EMUL_DATA" "data" 0 0 0 116 0 "" 0 "" 0 0 0 4294967295</Bp2>
-        <Bp3>_ "STD_LOG" "{$PROJ_DIR$\main.c}.297.9" 0 0 0 0 "" 0 "" 0</Bp3>
+        <Bp3>_ "STD_LOG" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 "" 0</Bp3>
         <Bp4>_ "STD_CODE" "{C:\ti\TivaWare_C_Series-2.1.4.178\utils\isqrt.c}.57.5" 0 0 0 0 "" 0 ""</Bp4>
         <Bp5>_ "STD_CODE" "{C:\ti\TivaWare_C_Series-2.1.4.178\utils\isqrt.c}.69.9" 0 0 0 0 "" 0 ""</Bp5>
-        <Bp6>_ "STD_CODE" "{$PROJ_DIR$\main.c}.238.5" 1 0 0 0 "" 0 ""</Bp6>
-        <Bp7>_ "STD_CODE" "{$PROJ_DIR$\main.c}.304.13" 0 0 0 0 "" 0 ""</Bp7>
-        <Bp8>_ "STD_LOG" "{$PROJ_DIR$\main.c}.259.9" 0 0 0 0 "" 0 "" 0</Bp8>
-        <Bp9>_ "STD_CODE" "{$PROJ_DIR$\main.c}.259.9" 0 0 0 0 "" 0 ""</Bp9>
-        <Bp10>_ "STD_CODE" "{$PROJ_DIR$\main.c}.302.9" 0 0 0 0 "" 0 ""</Bp10>
-        <Bp11>_ "STD_CODE" "{$PROJ_DIR$\main.c}.297.9" 0 0 0 0 "" 0 ""</Bp11>
-        <Count>12</Count>
+        <Bp6>_ "STD_CODE" "{$PROJ_DIR$\main.c}.390.7" 0 0 0 0 "" 0 ""</Bp6>
+        <Bp7>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 ""</Bp7>
+        <Bp8>_ "STD_LOG" "{$PROJ_DIR$\main.c}.454.13" 0 0 0 0 "" 0 "" 0</Bp8>
+        <Bp9>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 ""</Bp9>
+        <Bp10>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 ""</Bp10>
+        <Bp11>_ "STD_CODE" "{$PROJ_DIR$\main.c}.454.13" 0 0 0 0 "" 0 ""</Bp11>
+        <Bp12>_ "STD_CODE" "{$PROJ_DIR$\main.c}.454.13" 0 0 0 0 "" 0 ""</Bp12>
+        <Bp13>_ "STD_CODE" "{$PROJ_DIR$\Timer0B.c}.29.5" 0 0 0 0 "" 0 ""</Bp13>
+        <Bp14>_ "STD_CODE" "{$PROJ_DIR$\Timer0B.c}.31.1" 0 0 0 0 "" 0 ""</Bp14>
+        <Bp15>_ "STD_CODE" "{$PROJ_DIR$\Timer0B.c}.31.9" 0 0 0 0 "" 0 ""</Bp15>
+        <Bp16>_ "STD_CODE" "{$PROJ_DIR$\main.c}.403.13" 1 0 0 0 "" 0 ""</Bp16>
+        <Bp17>_ "STD_CODE" "{$PROJ_DIR$\main.c}.402.33" 1 0 0 0 "" 0 ""</Bp17>
+        <Bp18>_ "STD_CODE" "{$PROJ_DIR$\main.c}.67.5" 1 0 0 0 "" 0 ""</Bp18>
+        <Bp19>_ "STD_CODE" "{$PROJ_DIR$\main.c}.400.13" 0 0 0 0 "" 0 ""</Bp19>
+        <Bp20>_ "STD_CODE" "{$PROJ_DIR$\main.c}.414.9" 0 0 0 0 "" 0 ""</Bp20>
+        <Bp21>_ "STD_CODE" "{$PROJ_DIR$\Timer0.c}.29.5" 1 0 0 0 "" 0 ""</Bp21>
+        <Bp22>_ "STD_CODE" "{$PROJ_DIR$\main.c}.405.13" 0 0 0 0 "" 0 ""</Bp22>
+        <Count>23</Count>
     </Breakpoints>
     <TermIOLog>
         <LoggingEnabled>_ 0</LoggingEnabled>

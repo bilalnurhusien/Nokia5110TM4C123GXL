@@ -196,6 +196,7 @@ void Nokia5110_Init(void){
 void Output_Init(void){
   Nokia5110_Init();
   NokiaLineNumber=0;
+  Nokia5110_Clear();
 }
 // Clear display
 void Output_Clear(void){ // Clears the display
