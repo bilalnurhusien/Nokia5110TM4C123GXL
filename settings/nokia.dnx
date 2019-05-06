@@ -65,6 +65,12 @@
     <Disassembly>
         <MixedMode>1</MixedMode>
     </Disassembly>
+    <CallStackLog>
+        <Enabled>0</Enabled>
+    </CallStackLog>
+    <CallStackStripe>
+        <ShowTiming>1</ShowTiming>
+    </CallStackStripe>
     <DisassembleMode>
         <mode>1</mode>
     </DisassembleMode>
@@ -72,14 +78,14 @@
         <Bp0>_ "EMUL_DATA" "GPIO_PORTA_DATA_R" 0 0 0 116 0 "" 0 "" 0 0 0 4294967295</Bp0>
         <Bp1>_ "STD_CODE" "{$PROJ_DIR$\Nokia5110.c}.435.1" 0 0 0 0 "" 0 ""</Bp1>
         <Bp2>_ "EMUL_DATA" "data" 0 0 0 116 0 "" 0 "" 0 0 0 4294967295</Bp2>
-        <Bp3>_ "STD_LOG" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 "" 0</Bp3>
+        <Bp3>_ "STD_LOG" "{$PROJ_DIR$\main.c}.459.1" 0 0 0 0 "" 0 "" 0</Bp3>
         <Bp4>_ "STD_CODE" "{C:\ti\TivaWare_C_Series-2.1.4.178\utils\isqrt.c}.57.5" 0 0 0 0 "" 0 ""</Bp4>
         <Bp5>_ "STD_CODE" "{C:\ti\TivaWare_C_Series-2.1.4.178\utils\isqrt.c}.69.9" 0 0 0 0 "" 0 ""</Bp5>
-        <Bp6>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 ""</Bp6>
-        <Bp7>_ "STD_LOG" "{$PROJ_DIR$\main.c}.456.13" 0 0 0 0 "" 0 "" 0</Bp7>
-        <Bp8>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 ""</Bp8>
+        <Bp6>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.1" 0 0 0 0 "" 0 ""</Bp6>
+        <Bp7>_ "STD_LOG" "{$PROJ_DIR$\main.c}.456.1" 0 0 0 0 "" 0 "" 0</Bp7>
+        <Bp8>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.1" 0 0 0 0 "" 0 ""</Bp8>
         <Bp9>_ "STD_CODE" "{$PROJ_DIR$\main.c}.459.13" 0 0 0 0 "" 0 ""</Bp9>
-        <Bp10>_ "STD_CODE" "{$PROJ_DIR$\main.c}.456.13" 0 0 0 0 "" 0 ""</Bp10>
+        <Bp10>_ "STD_CODE" "{$PROJ_DIR$\main.c}.456.1" 0 0 0 0 "" 0 ""</Bp10>
         <Bp11>_ "STD_CODE" "{$PROJ_DIR$\main.c}.456.13" 0 0 0 0 "" 0 ""</Bp11>
         <Bp12>_ "STD_CODE" "{$PROJ_DIR$\Timer0B.c}.29.5" 0 0 0 0 "" 0 ""</Bp12>
         <Bp13>_ "STD_CODE" "{$PROJ_DIR$\Timer0B.c}.31.1" 0 0 0 0 "" 0 ""</Bp13>
@@ -103,10 +109,4 @@
         <Count>0</Count>
         <SuppressDialog>0</SuppressDialog>
     </Aliases>
-    <CallStackLog>
-        <Enabled>0</Enabled>
-    </CallStackLog>
-    <CallStackStripe>
-        <ShowTiming>1</ShowTiming>
-    </CallStackStripe>
 </settings>

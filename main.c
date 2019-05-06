@@ -110,9 +110,9 @@ void InitializeGPIOF()
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);    
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
-    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0 );
-    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0 );
-    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0 );
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0);
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0);
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0);
     
     GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4);  // Init PF4 as input
     GPIOPadConfigSet(GPIO_PORTF_BASE,
@@ -141,7 +141,7 @@ bool Initialize()
     uint32_t periodA = SysCtlClockGet()/100;
     uint32_t periodB = SysCtlClockGet();
  
-    if (!Timer_0_Init(&Timer0A_Handler, &Timer0B_Handler, periodA, periodB))
+    if (!Timer_Init(&Timer0A_Handler, &Timer0B_Handler, periodA, periodB))
     {
         printf("Failed to initialize Timer0A");
         return false;     
