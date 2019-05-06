@@ -13,7 +13,7 @@ static void (*pTimer0UserIntHandler)(void);
 
 static void Timer_0_Handler(void){
     //
-    // Acknowledge timer01 timeout
+    // Clear timer0 interrupt and run interrupt handler
     //
     TimerIntClear(TIMER0_BASE, TimerIntStatus(TIMER0_BASE, false));
     pTimer0UserIntHandler();
@@ -23,7 +23,7 @@ static void (*pTimer1UserIntHandler)(void);
 
 static void Timer_1_Handler(void){
     //
-    // Acknowledge timer0B timeout
+    // Clear timer1 interrupt and run interrupt handler
     //
     TimerIntClear(TIMER1_BASE, TimerIntStatus(TIMER1_BASE, false));
     pTimer1UserIntHandler();
