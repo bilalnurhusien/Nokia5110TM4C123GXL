@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.general.xcl" --backend -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.general.xcl" --backend -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.general.xcl" "--debug_file=%~1" --backend -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.general.xcl" "--debug_file=%~1" --backend -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.driver.xcl" 
 
 @echo off 
 :end

@@ -23,9 +23,9 @@
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.general.xcl" --backend -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.general.xcl" --backend -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.driver.xcl" 
 }
 else
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\bilaln\Documents\tm4c123_programming\nokia5110\settings\nokia.Debug.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\common\bin\cspybat" -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\settings\nokia.Debug.driver.xcl" 
 }

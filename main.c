@@ -105,7 +105,7 @@ void InitializeGPIOF()
     }
     
     //
-    // Set pin 1 and 2 as outputs, SW controlled.
+    // Set pin 1, 2, and 3 as outputs, SW controlled.
     //
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);    
@@ -132,12 +132,68 @@ void InitializeGPIOF()
                    GPIO_FALLING_EDGE);                  // Configure PF4 for falling edge trigger
     GPIOIntEnable(GPIO_PORTF_BASE, GPIO_PIN_4);         // Enable interrupt for PF4
 }
+
+//
+// Initialize GPIOE for stepper motor (Pins: 1, 2)
+//
+void InitializeGPIOE()
+{
+    //
+    // Enable port F
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+
+    //
+    // Wait for the GPIOF module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOE))
+    {
+    }
+    
+    //
+    // Set pin 1 and 2 as outputs, SW controlled.
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_1);
+    GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_2);    
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 1);
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0);
+}
+
+//
+// Initialize GPIOB for switch 1
+//
+void InitializeGPIOB()
+{
+     //
+    // Enable the GPIOB peripheral
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+    
+    //
+    // Wait for the GPIOB module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB))
+    {
+    }
+    
+    //
+    // Set pin 7 output, SW controlled.
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
+    
+    GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, 0); 
+}
   
 //
 // Initialize LCD, IMU, and Timers
 //
 bool Initialize()
 {
+    //
+    // Wait for peripherals to fully power up
+    //
+    SysCtlDelay(SysCtlClockGet());  
+  
     //
     // Initialize timer for IMU to 10 msec and timer for heart beat to 1 sec 
     //
@@ -156,9 +212,19 @@ bool Initialize()
     Output_Init();
     
     //
-    // Initialize GPIOF 
+    // Initialize GPIOF for LEDs
     //
     InitializeGPIOF();
+    
+    //
+    // Initialize GPIOE for stepper motor DIR and STEP pins
+    //
+    InitializeGPIOE();
+    
+    //
+    // Initialize GPIOB for switch 1
+    //
+    InitializeGPIOB();
     
     //
     // MPU-6050 Initialization
@@ -181,27 +247,8 @@ bool Initialize()
         printf("Failed to find MPU-6050 IMU\n");
         return false;
     }
-                  
 
-    //
-    // Enable the GPIOB peripheral
-    //
-    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     
-    //
-    // Wait for the GPIOB module to be ready.
-    //
-    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB))
-    {
-    }
-    
-    //
-    // Set pin 7 output, SW controlled.
-    //
-    GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
-    
-    GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, 0); 
-
     //
     // Iniitalize ADC0
     //
@@ -224,7 +271,7 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
     }
     
     const uint32_t CalibrationCount = 500;
-   
+    
     int16_t gyroX, gyroY, gyroZ, i;
     int64_t gyroXCalSum,  gyroYCalSum, gyroZCalSum;
 
@@ -243,9 +290,10 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
         if (imuDataRefreshTimeout)
         {
             //
-            // Toggle GPIO B7 for debugging purposes
+            // Toggle GPIO B7 and F2 for debugging purposes
             //
             ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+
             imuDataRefreshTimeout = 0;
             MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
             gyroXCalSum += gyroX;
@@ -255,6 +303,7 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
             if ((i % 100) == 0)
             {
                 Nokia5110_OutChar('.');
+                ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_1);
             }
         }
     }
@@ -297,9 +346,10 @@ void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * acce
         if (imuDataRefreshTimeout)
         {
             //
-            // Toggle GPIO B7 for debugging purposes
+            // Toggle GPIO B7 and F2 for debugging purposes
             //
             ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+            
             imuDataRefreshTimeout = 0;
             MPU_6050_GetGyroData(&accelX, &accelY, &accelZ);
             accelXCalSum += accelX;
@@ -309,6 +359,7 @@ void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * acce
             if ((i % 100) == 0)
             {
                 Nokia5110_OutChar('.');
+                ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_1);
             }
         }
     }
@@ -321,6 +372,9 @@ void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * acce
 
 int main(void)
 {
+    const int8_t StepsPerRevolution = 200;
+    const volatile float MinAnglePitch = 80.0f;
+    const volatile float MaxAnglePitch = 100.0f;
     int8_t initializeFailed = 0;
   
     //
@@ -333,7 +387,6 @@ int main(void)
     // Set clock to 16 MHz
     //
     SysCtlClockSet(SYSCTL_SYSDIV_1|SYSCTL_USE_PLL|SYSCTL_OSC_MAIN|SYSCTL_XTAL_16MHZ);
-    SysCtlDelay(3);
 
     //
     // Initialize timers and peripherals
@@ -342,19 +395,14 @@ int main(void)
     {
         printf("Failed to initialize\n");
         initializeFailed = 1;
+        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
     }
     
+    //
+    // Loop forever on error
+    //
     while (initializeFailed)
     {
-        if (heartBeat)
-        {
-            heartBeat = 0;
-            
-            //
-            // Toggle Red LED pin
-            //
-            ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_1);
-        }
     }
     
     int16_t gyroXCal, gyroYCal, gyroZCal;
@@ -462,7 +510,16 @@ int main(void)
         //
         // Complementary filter
         //
-        anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;              // Correct the drift of the gyro pitch angle with the accelerometer pitch angle
+        anglePitch = anglePitch * 0.99999f + accelAnglePitch * 0.00001f;              // Correct the drift of the gyro pitch angle with the accelerometer pitch angle
+
+        if (MinAnglePitch <= anglePitch &&
+            MaxAnglePitch >= anglePitch)
+        {
+          //
+          // Toggle GPIOE2 step pin
+          //
+          ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+        }
         
         //
         // Send pitch and roll data to LCD
