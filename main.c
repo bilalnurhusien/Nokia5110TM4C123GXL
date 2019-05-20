@@ -23,16 +23,24 @@
 //
 // Notes:
 //  Pitch (inclination)- angle wrt the x-axis
-//  Roll (tilt)- angle wrt the y-axis
-//  Yaw  angle wrt the z-axis
 //
 
 volatile int imuDataRefreshTimeout = 0;
 volatile int recordReferencePitchAngle = 0;
 volatile int heartBeat = 0;
 
-#define ADC_RESOLUTION  4096.0f
+#define ADC_MAX_VALUE  4096.0f
 #define ADC_MAX_VOLTAGE 3.3f
+
+//
+// (Max Battery Voltage * Voltage Divider Ratio) = 11.1f V * (1 kOhm /(1 kOhm + 4.6 kOhm))
+//
+#define BATTERY_VOLTAGE_DIV_RATIO 1.98f
+
+//
+// Used to convert ADC voltage value to the battery voltage
+//
+#define ADC_BATTERY_MULTIPLIER (ADC_MAX_VOLTAGE) * (BATTERY_VOLTAGE_DIV_RATIO)
 
 //
 // Toggle GPIO
@@ -68,7 +76,7 @@ void SetUpLcdScreen()
     Nokia5110_SetCursor(0,1);
     Nokia5110_OutString("Ref  :");
     Nokia5110_SetCursor(0,2);
-    Nokia5110_OutString("Volts:");
+    Nokia5110_OutString("Batt :");
     Nokia5110_SetCursor(0,3);
     Nokia5110_OutString("Prop :");
     Nokia5110_SetCursor(0,4);
@@ -465,7 +473,7 @@ int main(void)
             if (ADC_0_IsDataAvailable())
             {
                 uint32_t adcValue = ADC_0_GetData();          
-                voltageValue = (adcValue / ADC_RESOLUTION) * ADC_MAX_VOLTAGE;
+                voltageValue = (adcValue / ADC_MAX_VALUE) * ADC_BATTERY_MULTIPLIER;
 
                 ADC_0_TriggerCapture();
             }
@@ -505,7 +513,9 @@ int main(void)
             // Note - the accelerometer data is sensitive to vibration from the motor
             // so we'll need to combine the accelerometer data with the gyroscope using
             // a complemetary filter later on in the code. Calculate the total accelerometer vector       
-            accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  
+            accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+
+                                    ((float)accelY)*((float)accelY)+
+                                    ((float)accelZ)*((float)accelZ));
             angleIntermCalc = ((float)accelY) / (accelAngleTotal);
 
             //
@@ -518,15 +528,15 @@ int main(void)
             // Correct the drift of the gyro pitch angle with the accelerometer
             // pitch angle using a complementary filter
             //
-            anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;
+            anglePitch = anglePitch * 0.99996f + accelAnglePitch * 0.00004f;
 
             if (MinAnglePitch <= anglePitch &&
                 MaxAnglePitch >= anglePitch)
             {
-              //
-              // Toggle GPIOE2 step pin
-              //
-              ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+                //
+                // Toggle GPIOE2 step pin
+                //
+                ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
             }
 
             //
