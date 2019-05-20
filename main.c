@@ -11,7 +11,6 @@
 #include <inc/hw_gpio.h>
 #include <driverlib/gpio.h>
 #include <driverlib/sysctl.h>
-#include <driverlib/gpio.h>
 #include <driverlib/interrupt.h>
 #include <driverlib/pin_map.h>
 #include <driverlib/sysctl.h>
@@ -33,14 +32,14 @@ volatile int heartBeat = 0;
 #define ADC_MAX_VOLTAGE 3.3f
 
 //
-// (Max Battery Voltage * Voltage Divider Ratio) = 11.1f V * (1 kOhm /(1 kOhm + 4.6 kOhm))
+// (1 kOhm /(1 kOhm + 4.6 kOhm))
 //
-#define BATTERY_VOLTAGE_DIV_RATIO 1.98f
+#define RESISTOR_DIV_RATIO (1.0f / 5.6f)
 
 //
 // Used to convert ADC voltage value to the battery voltage
 //
-#define ADC_BATTERY_MULTIPLIER (ADC_MAX_VOLTAGE) * (BATTERY_VOLTAGE_DIV_RATIO)
+#define ADC_BATTERY_MULTIPLIER (ADC_MAX_VOLTAGE) / (RESISTOR_DIV_RATIO)
 
 //
 // Toggle GPIO
@@ -163,8 +162,8 @@ void InitializeGPIOE()
     //
     GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_1);
     GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_2);    
-    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 1);
-    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0);
+    GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_1, 1);
+    GPIOPinWrite(GPIO_PORTE_BASE, GPIO_PIN_2, 0);
 }
 
 //

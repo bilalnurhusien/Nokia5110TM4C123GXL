@@ -128,11 +128,11 @@
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 18 23 22 40 46 20 10 21 8 47 45 29 39 41</file>
+                    <file> 18 23 22 40 46 20 10 21 8 47 45 29 39 34 41</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 22 45 8 39 40 21 47 29 41 23 10 46 20 18</file>
+                    <file> 10 41 45 20 8 39 23 21 47 29 34 22 46 18 40</file>
                 </tool>
             </inputs>
         </file>
@@ -224,7 +224,7 @@
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 55 22 59 53 34 40 8 21 39 26 57 14 51 7 48 4 30 47 29 43 23 10 46 20 49 18</file>
+                    <file> 43 20 59 10 53 29 23 49 21 8 39 34 47 46 7 48 4 30 26 55 57 22 40 14 51 18</file>
                 </tool>
             </inputs>
         </file>
