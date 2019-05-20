@@ -378,7 +378,8 @@ int main(void)
     int8_t initializeFailed = 0;
   
     //
-    // Enable floating point unit and disable stacking (i.e. FPU instructions aren't allowed within interrupt handlers)
+    // Enable floating point unit and disable stacking (i.e. FPU instructions
+    // aren't allowed within interrupt handlers)
     //
     FPUEnable();
     FPUStackingDisable();
@@ -432,11 +433,14 @@ int main(void)
     gyroZ -= gyroZCal;
     
     //
+    // Calculate the pitch angle
     // Note: 57.296 = 1 / (3.142 / 180) - the asin function returns radians
     //
-    accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  //Calculate the total accelerometer vector
+    accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+
+                            ((float)accelY)*((float)accelY)+
+                            ((float)accelZ)*((float)accelZ));
     angleIntermCalc = ((float)accelY) / (accelAngleTotal);    
-    accelAnglePitch = asinf(angleIntermCalc)* 57.296f;                          // Calculate the pitch angle
+    accelAnglePitch = asinf(angleIntermCalc)* 57.296f;
     anglePitch = accelAnglePitch;
         
     int count = 0;
@@ -445,95 +449,99 @@ int main(void)
     
     while (1)
     {
-      if (recordReferencePitchAngle)
-      {
-        recordReferencePitchAngle = 0;
-        anglePitchReference = anglePitch;
-      }
+        if (recordReferencePitchAngle)
+        {
+            recordReferencePitchAngle = 0;
+            anglePitchReference = anglePitch;
+        }
       
-      if (heartBeat)
-      {
-        heartBeat = 0;
-        
-        //
-        // Get voltage value from ADC 
-        //
-        if (ADC_0_IsDataAvailable())
+        if (heartBeat)
         {
-            uint32_t adcValue = ADC_0_GetData();          
-            voltageValue = (adcValue / ADC_RESOLUTION) * ADC_MAX_VOLTAGE;
+            heartBeat = 0;
 
-            ADC_0_TriggerCapture();
+            //
+            // Get voltage value from ADC 
+            //
+            if (ADC_0_IsDataAvailable())
+            {
+                uint32_t adcValue = ADC_0_GetData();          
+                voltageValue = (adcValue / ADC_RESOLUTION) * ADC_MAX_VOLTAGE;
+
+                ADC_0_TriggerCapture();
+            }
+
+            //
+            // Toggle Green LED pin
+            //
+            ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_3);
         }
-        
-        //
-        // Toggle Green LED pin
-        //
-        ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_3);
-      }
       
-      if (imuDataRefreshTimeout)
-      {
-        imuDataRefreshTimeout = 0;
-        ++count;
-        
-        //
-        // Toggle GPIO B7 at start of loop for debugging purposes
-        //
-        ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
-
-        MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
-        MPU_6050_GetAccelData(&accelX, &accelY, &accelZ);
-        
-        gyroX -= gyroXCal;
-        
-        //
-        // Gyro angle calculation: Integrate the gyro values (angular velocity) every 10 ms
-        // and divide by the sensitivity scale factor (65.5 LSB/g). This will
-        // give us the current angular change in position. Note: gyro values will drift 
-        // over time, so we'll need to combine this value with acceleromter data later on.
-        // Note: 0.0001527 = 1 / 100Hz / 65.5
-        //
-        anglePitch += gyroX * 0.0001527f;                                       // Calculate the traveled pitch angle and add this to the anglePitch variable
-
-        // Note - the accelerometer data is sensitive to vibration from the motor
-        // so we'll need to combine the accelerometer data with the gyroscope using
-        // a complemetary filter later on in the code. Calculate the total accelerometer vector       
-        accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  
-        angleIntermCalc = ((float)accelY) / (accelAngleTotal);
-        
-        //
-        // 57.296 = 1 / (3.142 / 180) The asin function is in radians
-        //
-        accelAnglePitch = asinf(angleIntermCalc)* 57.296f;              // Calculate the pitch angle
-
-        //
-        // Complementary filter
-        //
-        anglePitch = anglePitch * 0.99999f + accelAnglePitch * 0.00001f;              // Correct the drift of the gyro pitch angle with the accelerometer pitch angle
-
-        if (MinAnglePitch <= anglePitch &&
-            MaxAnglePitch >= anglePitch)
+        if (imuDataRefreshTimeout)
         {
-          //
-          // Toggle GPIOE2 step pin
-          //
-          ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+            imuDataRefreshTimeout = 0;
+            ++count;
+
+            //
+            // Toggle GPIO B7 at start of loop for debugging purposes
+            //
+            ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+
+            MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
+            MPU_6050_GetAccelData(&accelX, &accelY, &accelZ);
+
+            gyroX -= gyroXCal;
+
+            //
+            // Gyro angle calculation: Calculate the traveled pitch angle
+            // and add this to the anglePitch variableIntegrate the gyro values
+            // (angular velocity) every 10 ms and divide by the sensitivity
+            // scale factor (65.5 LSB/g). This will give us the current angular
+            // change in position. Note: gyro values will drift over time,
+            // so we'll need to combine this value with acceleromter data later on.
+            // Note: 0.0001527 = 1 / 100Hz / 65.5
+            //
+            anglePitch += gyroX * 0.0001527f;
+
+            // Note - the accelerometer data is sensitive to vibration from the motor
+            // so we'll need to combine the accelerometer data with the gyroscope using
+            // a complemetary filter later on in the code. Calculate the total accelerometer vector       
+            accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+((float)accelY)*((float)accelY)+((float)accelZ)*((float)accelZ));  
+            angleIntermCalc = ((float)accelY) / (accelAngleTotal);
+
+            //
+            // Calculate the pitch angle
+            // 57.296 = 1 / (3.142 / 180) The asin function is in radians
+            //
+            accelAnglePitch = asinf(angleIntermCalc)* 57.296f;
+
+            //
+            // Correct the drift of the gyro pitch angle with the accelerometer
+            // pitch angle using a complementary filter
+            //
+            anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;
+
+            if (MinAnglePitch <= anglePitch &&
+                MaxAnglePitch >= anglePitch)
+            {
+              //
+              // Toggle GPIOE2 step pin
+              //
+              ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+            }
+
+            //
+            // Send pitch and roll data to LCD
+            //
+            if (count ==  100)
+            {
+                count = 0;
+                Nokia5110_SetCursor(6,0);
+                Nokia5110_OutFloat(anglePitch);
+                Nokia5110_SetCursor(6,1);
+                Nokia5110_OutFloat(anglePitchReference);
+                Nokia5110_SetCursor(6,2);
+                Nokia5110_OutFloat(voltageValue);           
+            }
         }
-        
-        //
-        // Send pitch and roll data to LCD
-        //
-        if (count ==  100)
-        {
-            count = 0;
-            Nokia5110_SetCursor(6,0);
-            Nokia5110_OutFloat(anglePitch);
-            Nokia5110_SetCursor(6,1);
-            Nokia5110_OutFloat(anglePitchReference);
-            Nokia5110_SetCursor(6,2);
-            Nokia5110_OutFloat(voltageValue);           
-        }
-      }
     }
 }

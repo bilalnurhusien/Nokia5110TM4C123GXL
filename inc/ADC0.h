@@ -1,5 +1,9 @@
 #include <stdint.h>
 
+//
+// This module is used to determine ADC values using the PE3 pin
+//
+
 //********ADC_0_Init*****************
 // Initialize a ADC0 using sequencer 1
 // inputs: none
