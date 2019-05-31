@@ -500,16 +500,16 @@ int main(void)
 
             //
             // Gyro angle calculation: Calculate the traveled pitch angle
-            // and add this to the anglePitch variableIntegrate the gyro values
+            // and add this to the anglePitch variable. Integrate the gyro values
             // (angular velocity) every 10 ms and divide by the sensitivity
             // scale factor (65.5 LSB/g). This will give us the current angular
-            // change in position. Note: gyro values will drift over time,
+            // change in position. the gyro values will drift over time,
             // so we'll need to combine this value with acceleromter data later on.
             // Note: 0.0001527 = 1 / 100Hz / 65.5
             //
             anglePitch += gyroX * 0.0001527f;
 
-            // Note - the accelerometer data is sensitive to vibration from the motor
+            // Note: the accelerometer data is sensitive to vibrations from the motor
             // so we'll need to combine the accelerometer data with the gyroscope using
             // a complemetary filter later on in the code. Calculate the total accelerometer vector       
             accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+
