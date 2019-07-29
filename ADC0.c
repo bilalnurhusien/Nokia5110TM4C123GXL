@@ -38,7 +38,6 @@ void ADC_0_Init()
     //
     // Select the analog ADC function for these pins.
     // Consult the data sheet to see which functions are allocated per pin.
-    // TODO: change this to select the port/pin you are using.
     //
     GPIOPinTypeADC(GPIO_PORTD_BASE, GPIO_PIN_2);
 
