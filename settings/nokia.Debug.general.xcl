@@ -1,14 +1,14 @@
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armproc.dll" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3_3\arm\bin\armproc.dll" 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armlmiftdi.dll" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3_3\arm\bin\armlmiftdi.dll" 
 
-"C:\Users\BNurhusien.SIERRAWIRELESS\Desktop\source\Nokia5110TM4C123GXL\Debug\Exe\nokia.out" 
+"C:\Users\bilal\Documents\Git\TM4C123G\Test\Nokia5110TM4C123GXL\Debug\Exe\nokia.out" 
 
---plugin="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\bin\armbat.dll" 
+--plugin="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3_3\arm\bin\armbat.dll" 
 
---device_macro="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\config\debugger\TexasInstruments\TM4C123.dmac" 
+--device_macro="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3_3\arm\config\debugger\TexasInstruments\TM4C123.dmac" 
 
---flash_loader="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.2\arm\config\flashloader\TexasInstruments\FlashTC4_H6_o.board" 
+--flash_loader="C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.3_3\arm\config\flashloader\TexasInstruments\FlashTC4_H6_o.board" 
 
 
 

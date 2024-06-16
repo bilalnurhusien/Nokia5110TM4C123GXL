@@ -73,14 +73,12 @@ void SetUpLcdScreen()
     Nokia5110_Clear();
     Nokia5110_OutString("Pitch:");
     Nokia5110_SetCursor(0,1);
-    Nokia5110_OutString("Ref  :");
-    Nokia5110_SetCursor(0,2);
     Nokia5110_OutString("Batt :");
-    Nokia5110_SetCursor(0,3);
+    Nokia5110_SetCursor(0,2);
     Nokia5110_OutString("Prop :");
-    Nokia5110_SetCursor(0,4);
+    Nokia5110_SetCursor(0,3);
     Nokia5110_OutString("Integ:");
-    Nokia5110_SetCursor(0,5);
+    Nokia5110_SetCursor(0,4);
     Nokia5110_OutString("Deriv:");
 }
 
@@ -380,8 +378,8 @@ void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * acce
 int main(void)
 {
     const int8_t StepsPerRevolution = 200;
-    const volatile float MinAnglePitch = 80.0f;
-    const volatile float MaxAnglePitch = 100.0f;
+    const float MinAnglePitch = 60.0f;
+    const float MaxAnglePitch = 120.0f;
     int8_t initializeFailed = 0;
   
     //
@@ -417,12 +415,11 @@ int main(void)
     int16_t accelXCal, accelYCal, accelZCal;
     int16_t gyroX, gyroY, gyroZ;
     int16_t accelX, accelY, accelZ;
-    volatile float anglePitch = 0;
-    volatile float accelAnglePitch  = 0;
-    volatile float angleIntermCalc = 0;
-    volatile float anglePitchReference = 90.0f;
-    volatile float accelAngleTotal = 0;
-    volatile float voltageValue = 0;
+    float anglePitch = 0;
+    float accelAnglePitch  = 0;
+    float angleIntermCalc = 0;
+    float accelAngleTotal = 0;
+    float voltageValue = 0;
     
     CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
     CalibrateAccelData(&accelXCal, &accelYCal, &accelZCal);
@@ -440,28 +437,25 @@ int main(void)
     gyroZ -= gyroZCal;
     
     //
-    // Calculate the pitch angle
-    // Note: 57.296 = 1 / (3.142 / 180) - the asin function returns radians
+    // Calculate the pitch angle in degrees
+    // Note: 57.296 = 180 deg / 3.142 rads - the asin function returns radians
     //
     accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+
                             ((float)accelY)*((float)accelY)+
                             ((float)accelZ)*((float)accelZ));
     angleIntermCalc = ((float)accelY) / (accelAngleTotal);    
     accelAnglePitch = asinf(angleIntermCalc)* 57.296f;
+
+    // Set initial angle provided by accelerometer since robot is at rest initially
+    // Accelerometer can provide initial angle when robot is at rest
     anglePitch = accelAnglePitch;
-        
-    int count = 0;
+ 
+    int lcdUpdateCount = 0;
     
     ADC_0_TriggerCapture();
     
     while (1)
-    {
-        if (recordReferencePitchAngle)
-        {
-            recordReferencePitchAngle = 0;
-            anglePitchReference = anglePitch;
-        }
-      
+    {     
         if (heartBeat)
         {
             heartBeat = 0;
@@ -486,7 +480,7 @@ int main(void)
         if (imuDataRefreshTimeout)
         {
             imuDataRefreshTimeout = 0;
-            ++count;
+            ++lcdUpdateCount;
 
             //
             // Toggle GPIO B7 at start of loop for debugging purposes
@@ -503,7 +497,7 @@ int main(void)
             // and add this to the anglePitch variable. Integrate the gyro values
             // (angular velocity) every 10 ms and divide by the sensitivity
             // scale factor (65.5 LSB/g). This will give us the current angular
-            // change in position. the gyro values will drift over time,
+            // change in position. The gyro values will drift over time,
             // so we'll need to combine this value with acceleromter data later on.
             // Note: 0.0001527 = 1 / 100Hz / 65.5
             //
@@ -527,7 +521,7 @@ int main(void)
             // Correct the drift of the gyro pitch angle with the accelerometer
             // pitch angle using a complementary filter
             //
-            anglePitch = anglePitch * 0.99996f + accelAnglePitch * 0.00004f;
+            anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;
 
             if (MinAnglePitch <= anglePitch &&
                 MaxAnglePitch >= anglePitch)
@@ -541,14 +535,12 @@ int main(void)
             //
             // Send pitch and roll data to LCD
             //
-            if (count ==  100)
+            if (lcdUpdateCount ==  100)
             {
-                count = 0;
+                lcdUpdateCount = 0;
                 Nokia5110_SetCursor(6,0);
                 Nokia5110_OutFloat(anglePitch);
                 Nokia5110_SetCursor(6,1);
-                Nokia5110_OutFloat(anglePitchReference);
-                Nokia5110_SetCursor(6,2);
                 Nokia5110_OutFloat(voltageValue);           
             }
         }
