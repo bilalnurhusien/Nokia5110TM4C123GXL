@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include "I2C2.h"
 
+// Register values are from:
+// MPU-6000 and MPU-6050 Register Map and Descriptions Revision 4.2 Datasheet
+
 // MPU-6050 I2C Address
 #define I2C_MPU_6050_I2C_ADDR                  0x68
 

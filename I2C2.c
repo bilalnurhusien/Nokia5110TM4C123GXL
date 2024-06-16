@@ -140,7 +140,7 @@ int16_t I2C_Read2Bytes(uint8_t device_address, uint8_t device_register)
 
     // 
     //
-    // Tell slave to read data one more byte
+    // Tell slave to read  one more byte
     //
     I2CMasterControl(I2C2_BASE, I2C_MASTER_CMD_BURST_RECEIVE_FINISH); 
     

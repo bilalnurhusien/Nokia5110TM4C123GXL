@@ -19,13 +19,8 @@
 #include "inc/Mpu6050.h"
 #include "inc/Timers.h"
 
-//
-// Notes:
-//  Pitch (inclination)- angle wrt the x-axis
-//
-
+// These volatile variables are used in the interrupt handlers
 volatile int imuDataRefreshTimeout = 0;
-volatile int recordReferencePitchAngle = 0;
 volatile int heartBeat = 0;
 
 #define ADC_MAX_VALUE  4096.0f
@@ -75,10 +70,12 @@ void SetUpLcdScreen()
     Nokia5110_SetCursor(0,1);
     Nokia5110_OutString("Batt :");
     Nokia5110_SetCursor(0,2);
-    Nokia5110_OutString("Prop :");
+    Nokia5110_OutString("Temp :");
     Nokia5110_SetCursor(0,3);
-    Nokia5110_OutString("Integ:");
+    Nokia5110_OutString("Prop :");
     Nokia5110_SetCursor(0,4);
+    Nokia5110_OutString("Integ:");
+    Nokia5110_SetCursor(0,5);
     Nokia5110_OutString("Deriv:");
 }
 
@@ -88,7 +85,6 @@ void SetUpLcdScreen()
 void SW1InterruptHandler() {
     if ((GPIOIntStatus(GPIO_PORTF_BASE, false) & GPIO_PIN_4) == GPIO_PIN_4) {
         GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);  // Clear interrupt flag
-        recordReferencePitchAngle = true;
     }
 }
 
@@ -374,10 +370,17 @@ void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * acce
     *accelZCal = (accelZCalSum / CalibrationCount);
 }
 
-
+//
+// TODO: Remove magic numbers
+//
 int main(void)
 {
     const int8_t StepsPerRevolution = 200;
+    
+    //
+    // Pitch - angle with respect to X-axis
+    // Roll - angle with respect to Y-axis not needed for balancing robot
+    //
     const float MinAnglePitch = 60.0f;
     const float MaxAnglePitch = 120.0f;
     int8_t initializeFailed = 0;
@@ -415,11 +418,13 @@ int main(void)
     int16_t accelXCal, accelYCal, accelZCal;
     int16_t gyroX, gyroY, gyroZ;
     int16_t accelX, accelY, accelZ;
+    int16_t tempData;
     float anglePitch = 0;
     float accelAnglePitch  = 0;
     float angleIntermCalc = 0;
     float accelAngleTotal = 0;
     float voltageValue = 0;
+    float tempDegCelsius = 0;
     
     CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
     CalibrateAccelData(&accelXCal, &accelYCal, &accelZCal);
@@ -470,6 +475,14 @@ int main(void)
 
                 ADC_0_TriggerCapture();
             }
+            
+            MPU_6050_GetTempData(&tempData);
+            
+            // From MPU-6050 Register Map and Descriptions Datasheet 4.2:
+            // 0.0029411 (1/340) multiplier and 521, 35 offsets must be applied to temperature data
+            // 12421 = 521 - 35 * 340
+            tempDegCelsius = (float)tempData + 12421.0f;
+            tempDegCelsius *= 0.0029411f;
 
             //
             // Toggle Green LED pin
@@ -503,12 +516,11 @@ int main(void)
             //
             anglePitch += gyroX * 0.0001527f;
 
-            // Note: the accelerometer data is sensitive to vibrations from the motor
-            // so we'll need to combine the accelerometer data with the gyroscope using
-            // a complemetary filter later on in the code. Calculate the total accelerometer vector       
+            //  Calculate the total accelerometer vector       
             accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+
                                     ((float)accelY)*((float)accelY)+
                                     ((float)accelZ)*((float)accelZ));
+ 
             angleIntermCalc = ((float)accelY) / (accelAngleTotal);
 
             //
@@ -518,11 +530,14 @@ int main(void)
             accelAnglePitch = asinf(angleIntermCalc)* 57.296f;
 
             //
-            // Correct the drift of the gyro pitch angle with the accelerometer
-            // pitch angle using a complementary filter
+            // Gyroscope readings over time are susceptible to drift so add the accelerometer
+            // pitch angle using a complementary filter. The accelerometer data is sensitive
+            // to vibrations from the motor so we'll need to combine the accelerometer data
+            // with the gyroscope as follows:
             //
             anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;
 
+            // When robot is within reasonable range, operate motor
             if (MinAnglePitch <= anglePitch &&
                 MaxAnglePitch >= anglePitch)
             {
@@ -541,7 +556,9 @@ int main(void)
                 Nokia5110_SetCursor(6,0);
                 Nokia5110_OutFloat(anglePitch);
                 Nokia5110_SetCursor(6,1);
-                Nokia5110_OutFloat(voltageValue);           
+                Nokia5110_OutFloat(voltageValue); 
+                Nokia5110_SetCursor(6,2);
+                Nokia5110_OutFloat(tempDegCelsius); 
             }
         }
     }
