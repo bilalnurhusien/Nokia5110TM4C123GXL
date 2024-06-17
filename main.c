@@ -23,18 +23,28 @@
 volatile int imuDataRefreshTimeout = 0;
 volatile int heartBeat = 0;
 
+// ADC has 12 bit resolution is 4096
 #define ADC_MAX_VALUE  4096.0f
+
+// ADC max voltage tolerance is 3.3V
 #define ADC_MAX_VOLTAGE 3.3f
 
 //
-// (1 kOhm /(1 kOhm + 4.6 kOhm))
+// (3.3 kOhm /(3.3 kOhm + 10.0 kOhm))
 //
-#define RESISTOR_DIV_RATIO (1.0f / 5.6f)
+#define RESISTOR_DIV_RATIO (3.3f / 13.3f)
 
 //
 // Used to convert ADC voltage value to the battery voltage
+//  
+//  ADC_MAX_VOLTAGE / (ADC_MAX_VALUE * RESISTOR_DIV_RATIO) = 0.00324707
 //
-#define ADC_BATTERY_MULTIPLIER (ADC_MAX_VOLTAGE) / (RESISTOR_DIV_RATIO)
+#define ADC_BATTERY_MULTIPLIER 0.00324707f
+
+// Low voltage is 10 Volts
+#define MIN_BATTERY_VOLTAGE 10
+
+#define ENABLE_LOW_BATTERY_ERROR 0
 
 //
 // Toggle GPIO
@@ -70,12 +80,10 @@ void SetUpLcdScreen()
     Nokia5110_SetCursor(0,1);
     Nokia5110_OutString("Batt :");
     Nokia5110_SetCursor(0,2);
-    Nokia5110_OutString("Temp :");
-    Nokia5110_SetCursor(0,3);
     Nokia5110_OutString("Prop :");
-    Nokia5110_SetCursor(0,4);
+    Nokia5110_SetCursor(0,3);
     Nokia5110_OutString("Integ:");
-    Nokia5110_SetCursor(0,5);
+    Nokia5110_SetCursor(0,4);
     Nokia5110_OutString("Deriv:");
 }
 
@@ -259,6 +267,24 @@ bool Initialize()
 }
 
 //
+// Low battery voltage scenario
+//
+void LowVoltageError(float voltageValue)
+{
+#if ENABLE_LOW_BATTERY_ERROR == 1
+
+    Nokia5110_Clear();
+    Nokia5110_OutString("Low Volt:");
+    Nokia5110_OutFloat(voltageValue);
+    
+    while (1)
+    {
+       // Do nothing ...
+    }
+#endif
+}
+
+//
 // Calibrate the gyroscope data by taking several samples and using those values for future use
 //
 void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCal)
@@ -418,13 +444,11 @@ int main(void)
     int16_t accelXCal, accelYCal, accelZCal;
     int16_t gyroX, gyroY, gyroZ;
     int16_t accelX, accelY, accelZ;
-    int16_t tempData;
     float anglePitch = 0;
     float accelAnglePitch  = 0;
     float angleIntermCalc = 0;
     float accelAngleTotal = 0;
     float voltageValue = 0;
-    float tempDegCelsius = 0;
     
     CalibrateGyroData(&gyroXCal, &gyroYCal, &gyroZCal);
     CalibrateAccelData(&accelXCal, &accelYCal, &accelZCal);
@@ -471,19 +495,16 @@ int main(void)
             if (ADC_0_IsDataAvailable())
             {
                 uint32_t adcValue = ADC_0_GetData();          
-                voltageValue = (adcValue / ADC_MAX_VALUE) * ADC_BATTERY_MULTIPLIER;
+                voltageValue = ((float)adcValue * ADC_BATTERY_MULTIPLIER);
+
+                if (voltageValue < MIN_BATTERY_VOLTAGE)
+                {
+                  LowVoltageError(voltageValue);
+                }
 
                 ADC_0_TriggerCapture();
             }
-            
-            MPU_6050_GetTempData(&tempData);
-            
-            // From MPU-6050 Register Map and Descriptions Datasheet 4.2:
-            // 0.0029411 (1/340) multiplier and 521, 35 offsets must be applied to temperature data
-            // 12421 = 521 - 35 * 340
-            tempDegCelsius = (float)tempData + 12421.0f;
-            tempDegCelsius *= 0.0029411f;
-
+                       
             //
             // Toggle Green LED pin
             //
@@ -542,7 +563,7 @@ int main(void)
                 MaxAnglePitch >= anglePitch)
             {
                 //
-                // Toggle GPIOE2 step pin
+                // Toggle GPIOE2 robot stepper motor pin
                 //
                 ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
             }
@@ -557,8 +578,6 @@ int main(void)
                 Nokia5110_OutFloat(anglePitch);
                 Nokia5110_SetCursor(6,1);
                 Nokia5110_OutFloat(voltageValue); 
-                Nokia5110_SetCursor(6,2);
-                Nokia5110_OutFloat(tempDegCelsius); 
             }
         }
     }

@@ -53,7 +53,7 @@
         <LMIFTDIfoundProbes />
     </LMIFTDIDriver>
     <DebugChecksum>
-        <Checksum>3948833756</Checksum>
+        <Checksum>893581817</Checksum>
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -85,9 +85,13 @@
         <Bp13>_ "STD_CODE" "{$PROJ_DIR$\Timer0B.c}.31.1" 0 0 0 0 "" 0 ""</Bp13>
         <Bp14>_ "STD_CODE" "{$PROJ_DIR$\Timer0B.c}.31.9" 0 0 0 0 "" 0 ""</Bp14>
         <Bp15>_ "STD_CODE" "{$PROJ_DIR$\Timer0.c}.41.9" 0 0 0 0 "" 0 ""</Bp15>
-        <Bp16>_ "STD_CODE" "{$PROJ_DIR$\ADC0.c}.103.2" 0 0 0 0 "" 0 ""</Bp16>
+        <Bp16>_ "STD_CODE" "{$PROJ_DIR$\ADC0.c}.103.1" 0 0 0 0 "" 0 ""</Bp16>
         <Count>17</Count>
     </Breakpoints>
+    <TermIOLog>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+    </TermIOLog>
     <LogFile>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
@@ -103,8 +107,4 @@
     <CallStackStripe>
         <ShowTiming>1</ShowTiming>
     </CallStackStripe>
-    <TermIOLog>
-        <LoggingEnabled>_ 0</LoggingEnabled>
-        <LogFile>_ ""</LogFile>
-    </TermIOLog>
 </settings>
