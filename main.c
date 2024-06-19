@@ -21,7 +21,7 @@
 
 // These volatile variables are used in the interrupt handlers
 volatile int imuDataRefreshTimeout = 0;
-volatile int motorForward = 0;
+volatile int motorDirection = 0;
 
 // ADC has 12 bit resolution is 4096
 #define ADC_MAX_VALUE  4096.0f
@@ -41,8 +41,8 @@ volatile int motorForward = 0;
 //
 #define ADC_BATTERY_MULTIPLIER 0.00324707f
 
-// Low voltage for batter is 10 Volts
-#define MIN_BATTERY_VOLTAGE 10
+// Low voltage for battery is 8 Volts
+#define MIN_BATTERY_VOLTAGE 8
 
 #define ENABLE_LOW_BATTERY_ERROR 0
 
@@ -88,17 +88,23 @@ void TimerRefreshImuDataHandler(void){
 //
 void TimerMotorHandler(void){
     //
-    // Set GPIO B7 for direction of motor and E2 for motor step
+    // Set GPIOs B7, B6 for direction of motor and E2 for motor step
     //
-   if (motorForward)
-   {
-      SetGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
-      ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
-   }
-   else if (motorForward == -1)
+   if (motorDirection)
    {
       ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+      SetGpio(GPIO_PORTB_BASE, GPIO_PIN_6);
       ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+   }
+   else if (motorDirection == -1)
+   {
+      SetGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+      ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_6);
+      ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+   }
+   else
+   {
+      ClearGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
    }
 }
 
@@ -108,7 +114,7 @@ void TimerMotorHandler(void){
 void SetUpLcdScreen()
 {
     Nokia5110_Clear();
-    Nokia5110_OutString("Pitch:");
+    Nokia5110_OutString("Roll:");
     Nokia5110_SetCursor(0,1);
     Nokia5110_OutString("Batt :");
     Nokia5110_SetCursor(0,2);
@@ -218,10 +224,12 @@ void InitializeGPIOB()
     }
     
     //
-    // Set pin 7 output, SW controlled.
+    // Set pins 6&7 output, SW controlled for motors
     //
     GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
+    GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_6);
     
+    ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_6);
     ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
 }
   
@@ -434,11 +442,11 @@ int main(void)
     FPUStackingDisable();
      
     //
-    // Pitch - angle with respect to X-axis
+    // Roll - angle with respect to X-axis
     // Roll - angle with respect to Y-axis not needed for balancing robot
     //
-    const float MinAnglePitch = -40.0f;
-    const float MaxAnglePitch = 40.0f;
+    const float MinAngleRoll = -40.0f;
+    const float MaxAngleRoll = 40.0f;
     int8_t initializeFailed = 0;
 
     
@@ -468,8 +476,8 @@ int main(void)
     int16_t accelXCal, accelYCal, accelZCal;
     int16_t gyroX, gyroY, gyroZ;
     int16_t accelX, accelY, accelZ;
-    float anglePitch = 0;
-    float accelAnglePitch  = 0;
+    float angleRoll = 0;
+    float accelAngleRoll  = 0;
     float angleIntermCalc = 0;
     float accelAngleTotal = 0;
     float voltageValue = 0;
@@ -490,18 +498,18 @@ int main(void)
     gyroZ -= gyroZCal;
     
     //
-    // Calculate the pitch angle in degrees
+    // Calculate the roll angle in degrees
     // Note: 57.296 = 180 deg / 3.142 rads - the asin function returns radians
     //
     accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+
                             ((float)accelY)*((float)accelY)+
                             ((float)accelZ)*((float)accelZ));
-    angleIntermCalc = ((float)accelY) / (accelAngleTotal);    
-    accelAnglePitch = asinf(angleIntermCalc)* 57.296f;
+    angleIntermCalc = ((float)accelX) / (accelAngleTotal);    
+    accelAngleRoll = asinf(angleIntermCalc)* -57.296f;
 
     // Set initial angle provided by accelerometer since robot is at rest initially
     // Accelerometer can provide initial angle when robot is at rest
-    anglePitch = accelAnglePitch;
+    angleRoll = accelAngleRoll;
  
     int heartbeatCount = 0;
     
@@ -517,66 +525,66 @@ int main(void)
             MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
             MPU_6050_GetAccelData(&accelX, &accelY, &accelZ);
 
-            gyroX -= gyroXCal;
+            gyroY -= gyroYCal;
 
             //
-            // Gyro angle calculation: Calculate the traveled pitch angle
-            // and add this to the anglePitch variable. Integrate the gyro values
+            // Gyro angle calculation: Calculate the traveled roll angle
+            // and add this to the angleRoll variable. Integrate the gyro values
             // (angular velocity) every 10 ms and divide by the sensitivity
             // scale factor (65.5 LSB/g). This will give us the current angular
             // change in position. The gyro values will drift over time,
             // so we'll need to combine this value with acceleromter data later on.
             // Note: 0.0001527 = 1 / 100Hz / 65.5
             //
-            anglePitch += gyroX * 0.0001527f;
+            angleRoll += gyroY * 0.0001527f;
 
             //  Calculate the total accelerometer vector       
             accelAngleTotal = sqrtf(((float)accelX)*((float)accelX)+
                                     ((float)accelY)*((float)accelY)+
                                     ((float)accelZ)*((float)accelZ));
  
-            angleIntermCalc = ((float)accelY) / (accelAngleTotal);
+            angleIntermCalc = ((float)accelX) / (accelAngleTotal);
 
             //
-            // Calculate the pitch angle
+            // Calculate the roll angle
             // 57.296 = 1 / (3.142 / 180) The asin function is in radians
             //
-            accelAnglePitch = asinf(angleIntermCalc)* 57.296f;
+            accelAngleRoll = asinf(angleIntermCalc)* -57.296f;
 
             //
             // Gyroscope readings over time are susceptible to drift so add the accelerometer
-            // pitch angle using a complementary filter. The accelerometer data is sensitive
+            // roll angle using a complementary filter. The accelerometer data is sensitive
             // to vibrations from the motor so we'll need to combine the accelerometer data
             // with the gyroscope as follows:
             //
-            anglePitch = anglePitch * 0.9996f + accelAnglePitch * 0.0004f;
-
+            angleRoll = angleRoll * 0.9996f + accelAngleRoll * 0.0004f;
+            
             // When robot is within reasonable range, operate motor
-            if (MinAnglePitch <= anglePitch &&
-                MaxAnglePitch >= anglePitch)
+            if (MinAngleRoll <= angleRoll &&
+                MaxAngleRoll >= angleRoll)
             {
-                if (anglePitch > 5)
+                if (angleRoll > 5)
                 {                 
-                  motorForward = 1; 
+                  motorDirection = 1; 
                 }
-                else if (anglePitch < -5)
+                else if (angleRoll < -5)
                 {
-                  motorForward = -1;
+                  motorDirection = -1;
                 }
                 else
                 {
-                  motorForward = 0;
+                  motorDirection = 0;
                 }
             }
 
             if (heartbeatCount ==  100)
             {
                 //
-                // Send pitch and roll data to LCD
+                // Send roll and roll data to LCD
                 //             
                 heartbeatCount = 0;
                 Nokia5110_SetCursor(6,0);
-                Nokia5110_OutFloat(anglePitch);
+                Nokia5110_OutFloat(angleRoll);
                 Nokia5110_SetCursor(6,1);
                 Nokia5110_OutFloat(voltageValue); 
                 

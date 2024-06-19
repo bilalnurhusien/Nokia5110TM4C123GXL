@@ -5,148 +5,102 @@
     <configuration>
         <name>Debug</name>
         <outputs>
+            <file>$PROJ_DIR$\Mpu6050.c</file>
+            <file>$PROJ_DIR$\Nokia5110.c</file>
+            <file>$PROJ_DIR$\inc\Nokia5110.h</file>
+            <file>$PROJ_DIR$\Timers.c</file>
+            <file>$PROJ_DIR$\inc\Timers.h</file>
             <file>$PROJ_DIR$\ADC0.c</file>
             <file>$PROJ_DIR$\inc\ADC0.h</file>
             <file>$PROJ_DIR$\I2C2.c</file>
-            <file>$PROJ_DIR$\inc\I2C2.h</file>
             <file>$PROJ_DIR$\main.c</file>
-            <file>$TOOLKIT_DIR$\lib\m7M_tlv.a</file>
-            <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-            <file>$PROJ_DIR$\Nokia5110.c</file>
-            <file>$PROJ_DIR$\inc\Timers.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
-            <file>$PROJ_DIR$\Mpu6050.c</file>
-            <file>$PROJ_DIR$\inc\Nokia5110.h</file>
-            <file>$TOOLKIT_DIR$\lib\rt7M_tl.a</file>
-            <file>$PROJ_DIR$\Debug\List\nokia.map</file>
-            <file>$PROJ_DIR$\inc\tm4c123gh6pm.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\Nokia5110.o</file>
-            <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\I2C2.xcl</file>
-            <file>$TOOLKIT_DIR$\config\linker\TexasInstruments\TM4C123GH6.icf</file>
-            <file>$PROJ_DIR$\Debug\Obj\Timers.o</file>
-            <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
-            <file>$PROJ_DIR$\Timers.c</file>
             <file>$PROJ_DIR$\inc\Mpu6050.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_ints.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\Nokia5110.xcl</file>
+            <file>$PROJ_DIR$\inc\tm4c123gh6pm.h</file>
+            <file>$PROJ_DIR$\inc\I2C2.h</file>
+            <file>$TOOLKIT_DIR$\lib\rt7M_tl.a</file>
             <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\main.xcl</file>
-            <file>$TOOLKIT_DIR$\inc\c\math.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\fpu.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\Timers.xcl</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\timer.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\debug.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\DLib_Product_stdlib.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\DLib_float_setup.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\ADC0.xcl</file>
-            <file>$PROJ_DIR$\Debug\Obj\I2C2.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\Mpu6050.o</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\pin_map.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\adc.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\nokia.pbd</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_i2c.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_memmap.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gcc\libdriver.a</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\interrupt.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gpio.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\Mpu6050.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\ADC0.o</file>
-            <file>$PROJ_DIR$\Debug\Obj\ADC0.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Obj\Mpu6050.xcl</file>
-            <file>$PROJ_DIR$\Debug\Obj\main.__cstat.et</file>
-            <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
-            <file>$PROJ_DIR$\Debug\Obj\Nokia5110.__cstat.et</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_gpio.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\sysctl.h</file>
-            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_types.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\Timers.__cstat.et</file>
-            <file>$PROJ_DIR$\Debug\Exe\nokia.out</file>
-            <file>$PROJ_DIR$\Debug\Obj\I2C2.o</file>
-            <file>$TOOLKIT_DIR$\lib\dl7M_tln.a</file>
             <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
-            <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\ADC0.o</file>
             <file>$PROJ_DIR$\Debug\Obj\main.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\Timers.o</file>
+            <file>$PROJ_DIR$\Debug\Obj\Nokia5110.o</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gpio.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\main.__cstat.et</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\gcc\libdriver.a</file>
+            <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\interrupt.h</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\fpu.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\Nokia5110.xcl</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\timer.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\DLib_float_setup.h</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_types.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
+            <file>$PROJ_DIR$\Debug\Exe\nokia.out</file>
+            <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
             <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\i2c.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_ints.h</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\sysctl.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\Mpu6050.o</file>
+            <file>$PROJ_DIR$\Debug\List\nokia.map</file>
+            <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\DLib_Product_stdlib.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\Timers.__cstat.et</file>
+            <file>$TOOLKIT_DIR$\config\linker\TexasInstruments\TM4C123GH6.icf</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\adc.h</file>
+            <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\debug.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\main.xcl</file>
+            <file>$PROJ_DIR$\Debug\Obj\I2C2.__cstat.et</file>
+            <file>$PROJ_DIR$\Debug\Obj\nokia.pbd</file>
+            <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\ADC0.__cstat.et</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_gpio.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\I2C2.xcl</file>
+            <file>$PROJ_DIR$\Debug\Obj\I2C2.o</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\driverlib\pin_map.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\ADC0.xcl</file>
+            <file>$TOOLKIT_DIR$\lib\dl7M_tln.a</file>
+            <file>$PROJ_DIR$\Debug\Obj\Timers.xcl</file>
+            <file>$PROJ_DIR$\Debug\Obj\Mpu6050.xcl</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_i2c.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\Mpu6050.__cstat.et</file>
+            <file>$TOOLKIT_DIR$\lib\m7M_tlv.a</file>
+            <file>$PROJ_DIR$\Debug\Obj\Nokia5110.__cstat.et</file>
+            <file>$TOOLKIT_DIR$\inc\c\math.h</file>
+            <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+            <file>$PROJ_DIR$\..\..\..\..\..\..\..\ti\TivaWare_C_Series-2.1.4.178\inc\hw_memmap.h</file>
         </outputs>
         <file>
             <name>[ROOT_NODE]</name>
             <outputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 59 13</file>
+                    <file> 30 37</file>
                 </tool>
             </outputs>
         </file>
         <file>
-            <name>$PROJ_DIR$\ADC0.c</name>
+            <name>$PROJ_DIR$\Mpu6050.c</name>
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 49</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 35</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 50</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 9 62 6 44 63 16 42 32 25 56 39 46 43 47 1</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\I2C2.c</name>
-            <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 60</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 17</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
                     <file> 36</file>
                 </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 32 62 6 44 63 16 25 3 14 41 43 57 55 65 47 56 38</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\main.c</name>
-            <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 64</file>
-                </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 26</file>
+                    <file> 58</file>
                 </tool>
                 <tool>
                     <name>__cstat</name>
-                    <file> 52</file>
+                    <file> 60</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 9 62 6 44 63 16 42 32 25 27 34 23 57 43 31 28 55 47 56 46 38 11 22 3 14 8</file>
+                    <file> 29 14 22 51 38 31 33 13 10 64 59 65 28 50 32 35 19 54 9 11</file>
                 </tool>
             </inputs>
         </file>
@@ -155,44 +109,21 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 15</file>
+                    <file> 18</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 24</file>
+                    <file> 25</file>
                 </tool>
                 <tool>
                     <name>__cstat</name>
-                    <file> 54</file>
+                    <file> 62</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 9 62 6 44 63 16 42 32 20 33 14 11</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\Mpu6050.c</name>
-            <outputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 37</file>
-                </tool>
-                <tool>
-                    <name>BICOMP</name>
-                    <file> 51</file>
-                </tool>
-                <tool>
-                    <name>__cstat</name>
-                    <file> 48</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>ICCARM</name>
-                    <file> 9 62 6 44 63 16 42 25 14 32 41 43 57 55 65 56 47 38 22 3</file>
+                    <file> 29 14 22 51 38 31 33 64 48 39 10 2</file>
                 </tool>
             </inputs>
         </file>
@@ -201,21 +132,90 @@
             <outputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 19</file>
+                    <file> 17</file>
                 </tool>
                 <tool>
                     <name>BICOMP</name>
-                    <file> 29</file>
+                    <file> 57</file>
                 </tool>
                 <tool>
                     <name>__cstat</name>
-                    <file> 58</file>
+                    <file> 40</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ICCARM</name>
-                    <file> 9 62 6 44 63 16 42 32 25 56 30 46 43 8</file>
+                    <file> 29 14 22 51 38 31 33 64 13 35 26 23 65 4</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\ADC0.c</name>
+            <outputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 15</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 55</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 49</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 29 14 22 51 38 31 33 64 13 35 42 23 65 19 6</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\I2C2.c</name>
+            <outputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 53</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 52</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 46</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 64 14 22 51 38 31 13 11 10 59 65 28 50 32 19 35 54</file>
+                </tool>
+            </inputs>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\main.c</name>
+            <outputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 16</file>
+                </tool>
+                <tool>
+                    <name>BICOMP</name>
+                    <file> 45</file>
+                </tool>
+                <tool>
+                    <name>__cstat</name>
+                    <file> 20</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>ICCARM</name>
+                    <file> 29 14 22 51 38 31 33 64 13 63 27 34 28 65 44 24 50 19 35 23 54 2 9 11 10 4</file>
                 </tool>
             </inputs>
         </file>
@@ -224,13 +224,13 @@
             <outputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 13</file>
+                    <file> 37</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>ILINK</name>
-                    <file> 18 49 60 64 37 15 19 45 53 12 5 61</file>
+                    <file> 41 15 53 16 36 18 17 21 43 12 61 56</file>
                 </tool>
             </inputs>
         </file>
