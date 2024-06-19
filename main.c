@@ -21,7 +21,7 @@
 
 // These volatile variables are used in the interrupt handlers
 volatile int imuDataRefreshTimeout = 0;
-volatile int heartBeat = 0;
+volatile int motorForward = 0;
 
 // ADC has 12 bit resolution is 4096
 #define ADC_MAX_VALUE  4096.0f
@@ -41,7 +41,7 @@ volatile int heartBeat = 0;
 //
 #define ADC_BATTERY_MULTIPLIER 0.00324707f
 
-// Low voltage is 10 Volts
+// Low voltage for batter is 10 Volts
 #define MIN_BATTERY_VOLTAGE 10
 
 #define ENABLE_LOW_BATTERY_ERROR 0
@@ -57,6 +57,26 @@ void ToggleGpio(uint32_t ui32Port, uint8_t ui8Pin)
 }
 
 //
+// Set GPIO
+//
+void SetGpio(uint32_t ui32Port, uint8_t ui8Pin)
+{
+    uint8_t gpioStatus =  (GPIOPinRead(ui32Port, ui8Pin) & 0xFF);
+    gpioStatus |= ui8Pin;
+    GPIOPinWrite(ui32Port, ui8Pin, gpioStatus);
+}
+
+//
+// Clear GPIO
+//
+void ClearGpio(uint32_t ui32Port, uint8_t ui8Pin)
+{
+    uint8_t gpioStatus =  (GPIOPinRead(ui32Port, ui8Pin) & 0xFF);
+    gpioStatus &= ~ui8Pin;
+    GPIOPinWrite(ui32Port, ui8Pin, gpioStatus);
+}
+
+//
 // Interrupt handler that causes main thread to retrieve data from IMU every 10 ms
 //
 void TimerRefreshImuDataHandler(void){
@@ -64,10 +84,22 @@ void TimerRefreshImuDataHandler(void){
 }
 
 //
-// Interrupt handler for the heart beat
+// Interrupt handler for the motor
 //
-void TimerHeartBeatHandler(void){
-    heartBeat = 1;
+void TimerMotorHandler(void){
+    //
+    // Set GPIO B7 for direction of motor and E2 for motor step
+    //
+   if (motorForward)
+   {
+      SetGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+      ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+   }
+   else if (motorForward == -1)
+   {
+      ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+      ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+   }
 }
 
 //
@@ -190,7 +222,7 @@ void InitializeGPIOB()
     //
     GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_7);
     
-    GPIOPinWrite(GPIO_PORTB_BASE, GPIO_PIN_7, 0); 
+    ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
 }
   
 //
@@ -204,12 +236,12 @@ bool Initialize()
     SysCtlDelay(SysCtlClockGet());  
   
     //
-    // Initialize timer for IMU to 10 msec and timer for heart beat to 1 sec 
+    // Initialize timer for IMU to 10 msec and timer for motor to 100 us
     //
-    uint32_t periodImu = SysCtlClockGet()/100;
-    uint32_t periodHeartBeat = SysCtlClockGet();
+    uint32_t periodImu = SysCtlClockGet() / 100;
+    uint32_t periodMotor = SysCtlClockGet() / 2000;
  
-    if (!Timers_Init(&TimerRefreshImuDataHandler, &TimerHeartBeatHandler, periodImu, periodHeartBeat))
+    if (!Timers_Init(&TimerMotorHandler, &TimerRefreshImuDataHandler, periodMotor, periodImu))
     {
         printf("Failed to initialize timers");
         return false;     
@@ -316,11 +348,6 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
     {     
         if (imuDataRefreshTimeout)
         {
-            //
-            // Toggle GPIO B7 and F2 for debugging purposes
-            //
-            ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
-
             imuDataRefreshTimeout = 0;
             MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
             gyroXCalSum += gyroX;
@@ -330,6 +357,9 @@ void CalibrateGyroData(int16_t * gyroXCal, int16_t * gyroYCal, int16_t * gyroZCa
             if ((i % 100) == 0)
             {
                 Nokia5110_OutChar('.');
+                //
+                // Toggle F1 for debugging purposes (red LED)
+                //
                 ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_1);
             }
         }
@@ -371,12 +401,7 @@ void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * acce
     while (i < CalibrationCount)
     {     
         if (imuDataRefreshTimeout)
-        {
-            //
-            // Toggle GPIO B7 and F2 for debugging purposes
-            //
-            ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
-            
+        {            
             imuDataRefreshTimeout = 0;
             MPU_6050_GetGyroData(&accelX, &accelY, &accelZ);
             accelXCalSum += accelX;
@@ -401,22 +426,21 @@ void CalibrateAccelData(int16_t * accelXCal, int16_t * accelYCal, int16_t * acce
 //
 int main(void)
 {
-    const int8_t StepsPerRevolution = 200;
-    
-    //
-    // Pitch - angle with respect to X-axis
-    // Roll - angle with respect to Y-axis not needed for balancing robot
-    //
-    const float MinAnglePitch = 60.0f;
-    const float MaxAnglePitch = 120.0f;
-    int8_t initializeFailed = 0;
-  
     //
     // Enable floating point unit and disable stacking (i.e. FPU instructions
     // aren't allowed within interrupt handlers)
     //
     FPUEnable();
     FPUStackingDisable();
+     
+    //
+    // Pitch - angle with respect to X-axis
+    // Roll - angle with respect to Y-axis not needed for balancing robot
+    //
+    const float MinAnglePitch = -40.0f;
+    const float MaxAnglePitch = 40.0f;
+    int8_t initializeFailed = 0;
+
     
     //
     // Set clock to 16 MHz
@@ -479,47 +503,16 @@ int main(void)
     // Accelerometer can provide initial angle when robot is at rest
     anglePitch = accelAnglePitch;
  
-    int lcdUpdateCount = 0;
+    int heartbeatCount = 0;
     
     ADC_0_TriggerCapture();
     
     while (1)
-    {     
-        if (heartBeat)
-        {
-            heartBeat = 0;
-
-            //
-            // Get voltage value from ADC 
-            //
-            if (ADC_0_IsDataAvailable())
-            {
-                uint32_t adcValue = ADC_0_GetData();          
-                voltageValue = ((float)adcValue * ADC_BATTERY_MULTIPLIER);
-
-                if (voltageValue < MIN_BATTERY_VOLTAGE)
-                {
-                  LowVoltageError(voltageValue);
-                }
-
-                ADC_0_TriggerCapture();
-            }
-                       
-            //
-            // Toggle Green LED pin
-            //
-            ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_3);
-        }
-      
+    {          
         if (imuDataRefreshTimeout)
         {
             imuDataRefreshTimeout = 0;
-            ++lcdUpdateCount;
-
-            //
-            // Toggle GPIO B7 at start of loop for debugging purposes
-            //
-            ToggleGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+            ++heartbeatCount;
 
             MPU_6050_GetGyroData(&gyroX, &gyroY, &gyroZ);
             MPU_6050_GetAccelData(&accelX, &accelY, &accelZ);
@@ -562,22 +555,51 @@ int main(void)
             if (MinAnglePitch <= anglePitch &&
                 MaxAnglePitch >= anglePitch)
             {
-                //
-                // Toggle GPIOE2 robot stepper motor pin
-                //
-                ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+                if (anglePitch > 5)
+                {                 
+                  motorForward = 1; 
+                }
+                else if (anglePitch < -5)
+                {
+                  motorForward = -1;
+                }
+                else
+                {
+                  motorForward = 0;
+                }
             }
 
-            //
-            // Send pitch and roll data to LCD
-            //
-            if (lcdUpdateCount ==  100)
+            if (heartbeatCount ==  100)
             {
-                lcdUpdateCount = 0;
+                //
+                // Send pitch and roll data to LCD
+                //             
+                heartbeatCount = 0;
                 Nokia5110_SetCursor(6,0);
                 Nokia5110_OutFloat(anglePitch);
                 Nokia5110_SetCursor(6,1);
                 Nokia5110_OutFloat(voltageValue); 
+                
+                //
+                // Get voltage value from ADC 
+                //
+                if (ADC_0_IsDataAvailable())
+                {
+                    uint32_t adcValue = ADC_0_GetData();          
+                    voltageValue = ((float)adcValue * ADC_BATTERY_MULTIPLIER);
+
+                    if (voltageValue < MIN_BATTERY_VOLTAGE)
+                    {
+                      LowVoltageError(voltageValue);
+                    }
+
+                    ADC_0_TriggerCapture();
+                }
+                           
+                //
+                // Toggle Green LED pin (heartbeat)
+                //
+                ToggleGpio(GPIO_PORTF_BASE, GPIO_PIN_3);
             }
         }
     }

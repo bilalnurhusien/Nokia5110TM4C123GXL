@@ -71,8 +71,8 @@ bool Timers_Init(void (*pfn0Handler)(void), void (*pfn1Handler)(void), uint32_t 
     //
     // Configure timer 0 and timer 2 for periodic mode
     //
-    TimerConfigure(TIMER0_BASE, TIMER_CFG_A_PERIODIC);
-    TimerConfigure(TIMER1_BASE, TIMER_CFG_A_PERIODIC);
+    TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
+    TimerConfigure(TIMER1_BASE, TIMER_CFG_PERIODIC);
 	
     // Load start value
     TimerLoadSet(TIMER0_BASE, TIMER_A, startValue0-1);
@@ -86,7 +86,7 @@ bool Timers_Init(void (*pfn0Handler)(void), void (*pfn1Handler)(void), uint32_t 
 
     // Enable timer 0 and timer 1
     TimerEnable(TIMER0_BASE, TIMER_A);
-	TimerEnable(TIMER1_BASE, TIMER_A);
+    TimerEnable(TIMER1_BASE, TIMER_A);
     
     return true;
 }
