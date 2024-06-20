@@ -21,9 +21,17 @@
 
 // These volatile variables are used in the interrupt handlers
 volatile int imuDataRefreshTimeout = 0;
-volatile int motorDirection = 0;
+volatile int nextMotorDirection = 0;
+volatile int currentMotorDirection = 0;
+float propGain = 45.0f;
+float integGain = 5.0f;
+float derivGain = 50.0f;
+float memoryInteg = 0.0f;
+float lastError = 0.0f;
+float angleRoll = 0.0f;
+float accelAngleRoll  = 0;
 
-// ADC has 12 bit resolution is 4096
+// ADC has 12 bit resolution so max is 4096
 #define ADC_MAX_VALUE  4096.0f
 
 // ADC max voltage tolerance is 3.3V
@@ -45,6 +53,9 @@ volatile int motorDirection = 0;
 #define MIN_BATTERY_VOLTAGE 8
 
 #define ENABLE_LOW_BATTERY_ERROR 0
+
+#define INTEGRAL_MAX_LIMIT 500.0f
+#define INTEGRAL_MIN_LIMIT -500.0f
 
 //
 // Toggle GPIO
@@ -83,6 +94,11 @@ void TimerRefreshImuDataHandler(void){
     imuDataRefreshTimeout = 1;
 }
 
+#define DEAD_ZONE_1  50
+#define DEAD_ZONE_2  -50
+#define MOTOR_DIRECTION_MAX  1000
+#define MOTOR_DIRECTION_MIN  -1000
+
 //
 // Interrupt handler for the motor
 //
@@ -90,22 +106,26 @@ void TimerMotorHandler(void){
     //
     // Set GPIOs B7, B6 for direction of motor and E2 for motor step
     //
-   if (motorDirection)
-   {
-      ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
-      SetGpio(GPIO_PORTB_BASE, GPIO_PIN_6);
-      ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
-   }
-   else if (motorDirection == -1)
+   if (nextMotorDirection > DEAD_ZONE_1)
    {
       SetGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
       ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_6);
       ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+      currentMotorDirection = nextMotorDirection;
    }
-   else
+   else if (nextMotorDirection < DEAD_ZONE_2)
    {
+      ClearGpio(GPIO_PORTB_BASE, GPIO_PIN_7);
+      SetGpio(GPIO_PORTB_BASE, GPIO_PIN_6);
+      ToggleGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
+      currentMotorDirection = nextMotorDirection;
+   }
+   else if (currentMotorDirection != 0.0f)
+   {
+      currentMotorDirection = 0;
       ClearGpio(GPIO_PORTE_BASE, GPIO_PIN_2);
    }
+   
 }
 
 //
@@ -443,7 +463,7 @@ int main(void)
      
     //
     // Roll - angle with respect to X-axis
-    // Roll - angle with respect to Y-axis not needed for balancing robot
+    // Pitch - angle with respect to Y-axis not needed for balancing robot
     //
     const float MinAngleRoll = -40.0f;
     const float MaxAngleRoll = 40.0f;
@@ -476,8 +496,7 @@ int main(void)
     int16_t accelXCal, accelYCal, accelZCal;
     int16_t gyroX, gyroY, gyroZ;
     int16_t accelX, accelY, accelZ;
-    float angleRoll = 0;
-    float accelAngleRoll  = 0;
+
     float angleIntermCalc = 0;
     float accelAngleTotal = 0;
     float voltageValue = 0;
@@ -551,30 +570,53 @@ int main(void)
             //
             accelAngleRoll = asinf(angleIntermCalc)* -57.296f;
 
-            //
-            // Gyroscope readings over time are susceptible to drift so add the accelerometer
-            // roll angle using a complementary filter. The accelerometer data is sensitive
-            // to vibrations from the motor so we'll need to combine the accelerometer data
-            // with the gyroscope as follows:
-            //
-            angleRoll = angleRoll * 0.9996f + accelAngleRoll * 0.0004f;
+            
+            if ((accelAngleRoll >= -5 && accelAngleRoll <= 0) ||
+                (accelAngleRoll <= 5 && accelAngleRoll >= 0))
+            {
+              angleRoll = accelAngleRoll;
+            }
+            else
+            {
+              //
+              // Gyroscope readings over time are susceptible to drift so add the accelerometer
+              // roll angle using a complementary filter. The accelerometer data is sensitive
+              // to vibrations from the motor so we'll need to combine the accelerometer data
+              // with the gyroscope as follows:
+              //
+              angleRoll = angleRoll * 0.9996f + accelAngleRoll * 0.0004f;
+            }
             
             // When robot is within reasonable range, operate motor
             if (MinAngleRoll <= angleRoll &&
                 MaxAngleRoll >= angleRoll)
             {
-                if (angleRoll > 5)
-                {                 
-                  motorDirection = 1; 
-                }
-                else if (angleRoll < -5)
-                {
-                  motorDirection = -1;
-                }
-                else
-                {
-                  motorDirection = 0;
-                }
+              memoryInteg += angleRoll * integGain;
+              if (INTEGRAL_MAX_LIMIT < memoryInteg)
+              {
+                memoryInteg = INTEGRAL_MAX_LIMIT;
+              }
+              else if (INTEGRAL_MIN_LIMIT > memoryInteg)
+              {
+                memoryInteg = INTEGRAL_MIN_LIMIT;
+              }
+
+              nextMotorDirection = propGain * angleRoll + memoryInteg + derivGain * (lastError - angleRoll);
+
+              if (nextMotorDirection > MOTOR_DIRECTION_MAX)
+              {
+                nextMotorDirection = MOTOR_DIRECTION_MAX;
+              }
+              else if (nextMotorDirection < MOTOR_DIRECTION_MIN)
+              {
+                nextMotorDirection = MOTOR_DIRECTION_MIN;
+              }
+              
+              lastError = angleRoll;
+            }
+            else
+            {
+              nextMotorDirection = 0;
             }
 
             if (heartbeatCount ==  100)
@@ -587,7 +629,13 @@ int main(void)
                 Nokia5110_OutFloat(angleRoll);
                 Nokia5110_SetCursor(6,1);
                 Nokia5110_OutFloat(voltageValue); 
-                
+                Nokia5110_SetCursor(6,2);
+                Nokia5110_OutFloat(propGain);
+                Nokia5110_SetCursor(6,3);
+                Nokia5110_OutFloat(integGain);
+                Nokia5110_SetCursor(6,4);
+                Nokia5110_OutFloat(derivGain);
+          
                 //
                 // Get voltage value from ADC 
                 //
